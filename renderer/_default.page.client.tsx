@@ -15,7 +15,6 @@ const mockPluginBehaviour = () => {
 function render() {
 	mockPluginBehaviour();
 	tempIslandInsert(islandsComponents);
-	console.log("flag")
 
 	renderIslands(document.body);
 }
