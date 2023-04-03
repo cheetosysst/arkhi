@@ -1,21 +1,37 @@
 {
   "name": "@arkhi/core",
+  "private": true,
   "version": "0.0.1",
-  "description": "",
-  "main": "./index.js",
-  "devDependencies": {},
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cheetosysst/arkhi.git"
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
-  "author": "",
-  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.15.5",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "typescript": "^4.9.3",
+    "vite": "^4.2.0",
+    "vite-plugin-dts": "^2.1.0"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    "./*": "./index.js",
-    "./client": "./src/client"
-  }
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types":  "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ]
 }

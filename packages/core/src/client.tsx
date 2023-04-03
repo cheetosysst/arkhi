@@ -1,7 +1,9 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 
-let islandsComponents: Map<string, React.FunctionComponent>;
+import type { FunctionComponent } from "react";
+
+let islandsComponents: Map<string, FunctionComponent>;
 const ISLAND_ATTRIBUTE_ID = "_island_id";
 
 const populate = (parent: Element, component: JSX.Element) => {
@@ -65,7 +67,7 @@ const explore = (parentNode: Node) => {
 const walk = (node: Node | null) => {
 	if (node?.nodeType !== Node.TEXT_NODE && (node as Element).attributes) {
 		const attributes = (node as Element).attributes;
-		const isIsland = attributes.getNamedItem("_island_id")!;
+		const isIsland = attributes.getNamedItem(ISLAND_ATTRIBUTE_ID)!;
 
 		if (isIsland) {
 			// An island is found, no need to dig further down.
@@ -82,10 +84,10 @@ const walk = (node: Node | null) => {
 	if (firstChild) walk(firstChild);
 };
 
-export default function render(node: Node) {
+export function renderIslands(node: Node) {
 	walk(node);
 }
 
-export const tempIslandInsert = (map: Map<string, React.FunctionComponent>) => {
+export const tempIslandInsert = (map: Map<string, FunctionComponent>) => {
 	islandsComponents = map;
 };
