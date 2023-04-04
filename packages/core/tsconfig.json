@@ -17,6 +17,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "paths": {
+      "@arkhi":[
+        "./src/index"
+      ]
+    }
   },
   "references": [{ "path": "./tsconfig.node.json" }]
 }
