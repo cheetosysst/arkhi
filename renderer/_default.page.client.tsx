@@ -1,5 +1,5 @@
 import type { FunctionComponent } from "react";
-import { renderIslands, tempIslandInsert } from "@arkhi/core";
+import { renderIslands } from "@arkhi/core";
 
 // Imported for mock purpose
 import Counter from "../pages/index/Counter";
@@ -13,9 +13,6 @@ const mockPluginBehaviour = () => {
 };
 
 function render() {
-	mockPluginBehaviour();
-	tempIslandInsert(islandsComponents);
-
 	renderIslands(document.body);
 }
 
