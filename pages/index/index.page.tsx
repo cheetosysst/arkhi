@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 import Counter from "./Counter";
 import Accumulator from "./Accumulator";
 
@@ -14,37 +14,37 @@ function Page() {
 				<li>
 					Non-Interactive. <Counter />
 					<br />
-					Interactive. <Counter _island_id="Counter:1" />
+					Interactive. <Counter />
 					<br />
-					Interactive. <Counter _island_id="Counter:2" />
+					Interactive. <Counter />
 					<br />
 				</li>
 				<li>
 					Non-Interactive. <Counter />
 					<br />
-					Interactive. <Counter _island_id="Counter:3" />
+					Interactive. <Counter />
 					<br />
-					Interactive. <Counter _island_id="Counter:4" />
+					Interactive. <Counter />
 					<br />
 				</li>
 				<li>
 					Non-Interactive. <Accumulator />
 					<br />
-					Interactive. <Accumulator _island_id="Accumulator:1" />
+					Interactive. <Accumulator />
 					<br />
-					Interactive. <Accumulator _island_id="Accumulator:2" />
+					Interactive. <Accumulator />
 					<br />
 				</li>
 				<li>
 					Non-Interactive. <Accumulator />
 					<br />
 					<div>
-						Interactive. <Accumulator _island_id="Accumulator:1" />
+						Interactive. <Accumulator />
 						<br />
 					</div>
-					Interactive. <Accumulator _island_id="Accumulator:1" />
+					Interactive. <Accumulator />
 					<br />
-					Interactive. <Accumulator _island_id="Accumulator:2" />
+					Interactive. <Accumulator />
 					<br />
 				</li>
 			</ul>
