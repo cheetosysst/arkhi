@@ -1,20 +1,39 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "module": "ES2020",
-    "target": "ES2020",
-    "moduleResolution": "Node",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["vite/client"],
-    "jsx": "react",
-    "skipLibCheck": true,
-    "esModuleInterop": true
-  },
-  "ts-node": {
-    "transpileOnly": true,
-    "esm": true,
-    "compilerOptions": {
-      "moduleResolution": "Node16"
-    }
-  }
+	"compilerOptions": {
+		"target": "es2020",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"checkJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"noUncheckedIndexedAccess": true,
+		"paths": {
+			"@/*": ["./*"]
+		}
+	},
+	"ts-node": {
+		"transpileOnly": true,
+		"esm": true,
+		"compilerOptions": {
+			"moduleResolution": "Node16"
+		}
+	},
+	"include": [
+		".eslintrc.cjs",
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		"**/*.cjs",
+		"**/*.mjs"
+	],
+	"exclude": ["node_modules"]
 }

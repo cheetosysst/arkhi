@@ -1,9 +1,8 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 
-import type { FunctionComponent } from "react";
+import { IslandMap } from "./island";
 
-let islandsComponents: Map<string, FunctionComponent>;
 const ISLAND_ATTRIBUTE_ID = "_island_id";
 
 const populate = (parent: Element, component: JSX.Element) => {
@@ -38,10 +37,16 @@ const explore = (parentNode: Node) => {
 			attributes.getNamedItem(ISLAND_ATTRIBUTE_ID)?.value;
 
 		if (islandString) {
+			const newAttr = new Map();
+			const temp: Record<string, string> = {};
+			for (let item of attributes) {
+				newAttr.set(item.name, item.value);
+				temp[item.name] = item.value;
+			}
 			const [islandName, islandId] = islandString.split(":");
-			const IslandType = islandsComponents.get(islandName);
-			//@ts-expect-error
-			siblings.push(<IslandType {...attributes} />);
+			const IslandType = IslandMap.get(islandName);
+			// @ts-ignore
+			siblings.push(<IslandType {...newAttr} />);
 			currentNode = currentNode.nextSibling as Node;
 			continue;
 		}
@@ -85,9 +90,6 @@ const walk = (node: Node | null) => {
 };
 
 export function renderIslands(node: Node) {
+	console.log("renderIsland start");
 	walk(node);
 }
-
-export const tempIslandInsert = (map: Map<string, FunctionComponent>) => {
-	islandsComponents = map;
-};

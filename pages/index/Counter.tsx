@@ -1,6 +1,7 @@
+import { Island } from "@arkhi/core";
 import React, { useState } from "react";
 
-export default function Counter({ ...props }) {
+function Counter_({ temp, ...props }: { temp?: string }) {
 	const [count, setCount] = useState(0);
 	return (
 		<button
@@ -12,3 +13,7 @@ export default function Counter({ ...props }) {
 		</button>
 	);
 }
+
+const Counter = Island(Counter_);
+
+export default Counter;
