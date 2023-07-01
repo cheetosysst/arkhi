@@ -4,6 +4,7 @@ import { PageContextProvider } from './usePageContext'
 import type { PageContext } from './types'
 import './PageShell.css'
 import { Link } from './Link'
+import { Link as TestLink } from '@arkhi/core';
 
 export { PageShell }
 
@@ -20,6 +21,9 @@ function PageShell({ children, pageContext }: { children: React.ReactNode; pageC
             <Link className="navitem" href="/about">
               About
             </Link>
+            <TestLink className="navitem" href="/test">
+              Test
+            </TestLink>
           </Sidebar>
           <Content>{children}</Content>
         </Layout>
