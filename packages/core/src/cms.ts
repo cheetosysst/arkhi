@@ -1,102 +1,133 @@
-import { Plugin } from 'vite';
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
-import path from 'path';
+import { Plugin } from "vite";
+import { readdirSync, readFileSync, statSync } from "fs";
+import path from "path";
+
+const postExtensions = [".md", ".mdx"];
 
 //文章的metadata
-interface ArticleConfig {
-    title: string;
-    created: Date;
-    edited: Date;
-    author: string;
-    tags: string[];
-}
+type ArticleConfig = {
+	title: string;
+	created: Date;
+	edited: Date;
+	author: string;
+	tags: string[];
+};
 
-//檔案的metadata interface
-interface FileMetadata {
-    path: string;                   //檔案路徑
-    type: string;                   //檔案類型（副檔名）
-    assets: string[];               //檔案相關的資源
-    i18n: Record<string, string>;   //多國語言資料
-    config?: ArticleConfig;         //檔案的相關配置（如果有）
-}
+type ContentNode = {
+	[key: string]: Content;
+};
 
-//內容管理系統
-interface ContentManagementSystem {
-    [key: string]: FileMetadata | ContentManagementSystem;
+type Content = {
+	children: ContentNode;
+	path: string; //檔案路徑
+	name: string;
+	type: string; //檔案類型（副檔名）
+	assets: string[]; //檔案相關的資源
+	config?: ArticleConfig; //檔案的相關配置（如果有）
+};
+
+function parseConfig(directory: string): ArticleConfig | undefined {
+	const configPath = path.join(directory, "config.json");
+	try {
+		const configData = readFileSync(configPath, "utf-8");
+		const config = JSON.parse(configData);
+		// TODO Use zod to parse config
+		return config;
+	} catch (e) {
+		console.warn("Config not found on", directory);
+		return undefined;
+	}
 }
 
 //讀取資料夾，建立CMS資料內容
-function parseContentDirectory(directory: string): ContentManagementSystem {
-    const content: ContentManagementSystem = {};
+function parseContents(directory: string): Content {
+	const files = readdirSync(directory);
+	const content: Content = {
+		children: [] as unknown as ContentNode,
+		name: path.parse(directory).base,
+		path: "",
+		type: "",
+		assets: [],
+		config: undefined,
+	};
 
-    const files = readdirSync(directory);//檔案夾內的檔案列表
+	files.forEach((file) => {
+		const filePath = path.join(directory, file);
+		const fileStat = statSync(filePath);
 
-    files.forEach((file) => {
-        const filePath = path.join(directory, file).replace(/\\/g, '/');//路徑
-        const fileStat = statSync(filePath);//檔案的詳細資訊
+		// Check directory first, in case a direcory is named like a file.
+		if (fileStat.isDirectory()) {
+			content.children[file] = parseContents(filePath);
+			return;
+		}
 
-        if (fileStat.isDirectory()) {
-            // 如果是資料夾，遞迴解析內容
-            content[file] = parseContentDirectory(filePath);
-        } else {
-            const fileExtension = path.extname(filePath).substring(1);
-            const fileMetadata: FileMetadata = {
-                path: filePath,
-                type: fileExtension,
-                assets: [],
-                i18n: {},
-            };
+		if (file === "config.json") {
+			content.config = parseConfig(directory);
+			return;
+		}
 
-            if (file === 'index.md') {
-                // 如果是index.md，讀取同檔案夾下對應的 config.json
-                const configPath = path.join(directory, 'config.json');
-                const configData = readFileSync(configPath, 'utf-8');
-                const config = JSON.parse(configData);
-                fileMetadata.config = config;
-                delete content[file]; //移除原本index.md的內容
-                delete content['config.json']//移除config.json的內容
-            }
+		const pathInfo = path.parse(file);
+		const isContent = postExtensions.includes(pathInfo.ext);
 
-            content[file] = fileMetadata;
-        }
-    });
+		if (pathInfo.name === "index" && isContent) {
+			content.name = path.parse(directory).base;
+			content.path = filePath;
+			content.type = pathInfo.ext;
+			return;
+		}
 
-    return content;
+		if (isContent) {
+			content.children[file] = {
+				children: [] as unknown as ContentNode,
+				name: pathInfo.name,
+				path: filePath,
+				type: pathInfo.ext,
+				assets: [],
+				config: undefined,
+			};
+			return;
+		}
+
+		content.assets.push(filePath);
+	});
+
+	return content;
 }
 
-//生成CMS的結構
-function generateContentMetadata(): ContentManagementSystem {
-    const contentDirectory = './content'; //讀取的資料夾路徑
-    const contentSystem: ContentManagementSystem = parseContentDirectory(contentDirectory);
-    return contentSystem;
+function compileMetadata(): Content {
+	const contentDirectory = path.join(process.cwd(), "/content");
+	const contentSystem = parseContents(contentDirectory);
+	return contentSystem;
 }
 
-//將CMS的內容寫入檔案
-function writeContentMetadataFile(contentSystem: ContentManagementSystem, outputFilePath: string) {
-    const contentMetadata = JSON.stringify(contentSystem, null, 2);
-    writeFileSync(outputFilePath, contentMetadata);
+function arkhiCMS(): Plugin {
+	contents;
+	return {
+		name: "vite-plugin-arkhi-cms",
+		buildStart() {
+			contents.root = compileMetadata();
+		},
+		enforce: "pre",
+		configureServer({ watcher }) {
+			watcher.add(`${process.cwd}/content/**`);
+			watcher.on("change", (filePath) => {
+				// TODO 在更新檔案時，更新該位置的樹
+				contents.root = compileMetadata();
+			});
+		},
+	};
 }
 
-export default function contentManagementPlugin(): Plugin {
-    let contentSystem: ContentManagementSystem;
+const contents = {
+	root: {
+		children: [] as unknown as ContentNode,
+		name: "",
+		path: "",
+		type: "",
+		assets: [],
+		config: undefined,
+	} as Content,
+};
 
-    function updateContentSystem() {
-        contentSystem = generateContentMetadata();
-        writeContentMetadataFile(contentSystem, './content/content-metadata.json');
-    }
-
-    return {
-        name: 'Content-Management-System-Plugin',
-        configureServer({ watcher }) {
-            // 生成初始的 contentSystem
-            updateContentSystem();
-
-            // 監聽 content 資料夾的變化，並在檔案變更時更新 contentSystem
-            watcher.add('./content/**');
-            watcher.on('change', (filePath) => {
-                console.log(`File ${filePath} changed.`);
-                updateContentSystem();
-            });
-        },
-    };
-}
+export { arkhiCMS, contents };
+export type { Content, ContentNode, ArticleConfig };
