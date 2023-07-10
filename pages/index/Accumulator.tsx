@@ -1,4 +1,4 @@
-import { Island } from "@arkhi/core";
+import { Island } from "@/arkhi/client";
 import React, { useState } from "react";
 
 function Accumulator_({ ...props }) {
