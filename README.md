@@ -4,9 +4,7 @@ The word "archipelago" originates from the Greek language. It is derived from tw
 
 Arkhi.js aims to leverage the [Islands Architecture](https://www.patterns.dev/posts/islands-architecture) concept, empowering developers to construct their own archipelago of functionality.
 
-### Demo
-
-(WIP)
+Demo: (WIP)
 
 ## Develop
 
