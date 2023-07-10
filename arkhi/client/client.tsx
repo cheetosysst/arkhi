@@ -90,6 +90,5 @@ const walk = (node: Node | null) => {
 };
 
 export function renderIslands(node: Node) {
-	console.log("renderIsland start");
 	walk(node);
 }

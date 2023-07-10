@@ -1,3 +1,4 @@
+import React from "react";
 import { ComponentType } from "react";
 
 export type IslandProps = { _island_id: string };
