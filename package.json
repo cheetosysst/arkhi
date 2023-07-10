@@ -1,4 +1,6 @@
 {
+  "name": "arkhi",
+  "description": "Islands architecture based meta framework",
   "scripts": {
     "dev": "npm run server",
     "prod": "npm run build && npm run server:prod",
@@ -25,6 +27,7 @@
     "vite-plugin-ssr": "^0.4.92",
     "vite-tsconfig-paths": "^4.2.0"
   },
+  "license": "MIT",
   "type": "module",
   "workspaces": [
     "packages/create-arkhi-app",
