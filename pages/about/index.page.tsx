@@ -11,7 +11,7 @@ function Page() {
 			<p>
 				Example of using <code>vite-plugin-ssr</code>.
 			</p>
-			<ReverseCounter />
+			<Adder />
 		</>
 	);
 }

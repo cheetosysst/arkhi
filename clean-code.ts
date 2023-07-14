@@ -1,12 +1,12 @@
 import { Plugin } from 'vite';
 import { transformSync } from 'esbuild';
-import ts from 'typescript';
 import path from 'path';
 import fs from 'fs';
+
 // 清除冗贅程式
 export default function vitePluginCleanDevCode(): Plugin {
     let cacheDir = path.resolve(process.cwd(), './node_modules/.vite'); // 緩存目錄的路徑
-    let importMap = new Map<string, Set<string>>(); // 保存每個文件中的 import 語句 使用的函式和文件名
+    let importedFunctionsMap = new Map<string, Set<string>>(); // 保存每個文件中的 import 語句 使用的函式和文件名
 
     // 清空缓存目錄
     function clearCacheDir() {
@@ -25,74 +25,55 @@ export default function vitePluginCleanDevCode(): Plugin {
             }
         },
         async load(id) {
-            if (id.endsWith('index.page.tsx')) {
+            if (id.endsWith('index.page.tsx')) {// 檢查每個 index.page.tsx
                 const filePath = new URL(id).pathname; // 獲取模塊的文件路徑
-                const rawCode = fs.readFileSync(filePath, 'utf-8'); // 讀取模塊的原始內容
-
-                // 正則表達式匹配 import 語句
+                const originalCode = fs.readFileSync(filePath, 'utf-8'); // 讀取模塊的原始內容
                 const importRegex = /import\s+({\s*(.+?)\s*})\s*from\s+['"](.+?)['"];/g;
                 let match;
-                while ((match = importRegex.exec(rawCode)) !== null) {
-                    let [fullMatch, fullImport, functionsInBraces, fileName] = match;
+                // 檢查程式內的import內容
+                while ((match = importRegex.exec(originalCode)) !== null) {
+                    let [fullMatch, importStatement, importedFunctions, fileName] = match;
 
-                    let functions = functionsInBraces ? functionsInBraces.split(',') : [];
+                    // 將 import 語句中的函式名稱切分為陣列
+                    let functions = importedFunctions ? importedFunctions.split(',') : [];
                     if (fileName.startsWith('./')) {
                         let idPath = path.dirname(id);
                         fileName = path.join(idPath, fileName.replace("./", "")).replace(/.*\\pages\\/, '').replace(/\\/g, '/');
-                        console.log('Imported functions:', functions);
-                        console.log('From file:', fileName);
 
-                        //檢查functions是否有在文件中使用
-                        functions = functions.filter(funcName => {
-                            // Matches <ComponentName />, <ComponentName></ComponentName>, <ComponentName prop={value} />, and so on.
-                            const jsxRegex = new RegExp(`<\\s*${funcName}(\\s+[^>]*|)>`, 'g');
-                            // Matches React.createElement(ComponentName, ...)
-                            const createElementRegex = new RegExp(`React\\.createElement\\(\\s*${funcName}`, 'g');
-
-                            if (!jsxRegex.test(rawCode) && !createElementRegex.test(rawCode)) {
-                                console.log(`Function ${funcName} is not used in the file.`);
-                                return false;
-                            }
-                            return true;
-                        });
-
-                        // 將 fileName 添加到 importMap
-                        if (importMap.has(fileName)) {
-                            // 如果 importMap 已经包含 fileName，将函数添加到现有集合
-                            let existingFunctions = importMap.get(fileName)!;  // 使用非空斷言
+                        // 將 fileName 添加到 importedFunctionsMap
+                        if (importedFunctionsMap.has(fileName)) {
+                            // 如果 importedFunctionsMap 已经包含 fileName，將函式添加到已存在的 Set 中
+                            let existingFunctions = importedFunctionsMap.get(fileName)!;
 
                             if (functions.length >= 1) {
-                                // 如果 functions 包含多个函数（即命名导出），遍历并添加它们
+                                // 如果 import 語句中包含多個函式名稱，則添加所有函式到 Set 中
                                 functions.forEach(func => existingFunctions.add(func));
                             }
                         } else {
-                            // 如果 importMap 不包含 fileName，创建新的集合并添加函数
-                            importMap.set(fileName, new Set(functions));
+                            // 如果 importedFunctionsMap 不包含 fileName，則創建一個新的 Set 並添加函式
+                            importedFunctionsMap.set(fileName, new Set(functions));
                         }
                     }
                 }
 
             }
-            else if (id.includes('pages')) { // 如果是 pages 下非 index.page.tsx 文件
-                console.log(id + '\n' + JSON.stringify([...importMap.entries()].map(([key, value]) => [key, [...value]])));
-                const filePath = new URL(id).pathname; // 獲取模塊的文件路徑
+            else if (id.includes('pages')) { // 對 'pages' 目錄下的非 index.page.tsx 文件進行處理
+                const filePath = new URL(id).pathname;
                 const pagesPath = path.join(process.cwd(), 'pages');
                 let fileName = path.relative(pagesPath, filePath).replace(/\\/g, '/');
-                fileName = fileName.substring(0, fileName.lastIndexOf('.'));  // remove the file extension
+                fileName = fileName.substring(0, fileName.lastIndexOf('.'));
 
-                console.log('fileName ' + fileName)
-                const rawCode = fs.readFileSync(filePath, 'utf-8'); // 讀取模塊的原始內容
-                let modifiedCode = rawCode; // 初始化要找的代碼為原始代碼
+                const originalCode = fs.readFileSync(filePath, 'utf-8'); // 讀取模塊的原始內容
+                let modifiedCode = originalCode; // 將要返回的代碼初始化為原始代碼
 
-                if (importMap.has(fileName)) { // 如果importMap中有這個文件名
-                    const exportedNames = importMap.get(fileName)!; // 獲取這個文件名的 import 語句集合
+                if (importedFunctionsMap.has(fileName)) { // 如果 importedFunctionsMap 中包含此文件名
+                    const exportedNames = importedFunctionsMap.get(fileName)!;
+                    const exportedNamesArray = Array.from(exportedNames).map(name => name.trim());
 
                     // 匹配所有函數名稱
-                    const allFunctions = Array.from(rawCode.matchAll(/function (\w+)_\(/g)).map(match => match[1]);
-
+                    const allFunctions = Array.from(originalCode.matchAll(/function (\w+)_\(/g)).map(match => match[1]);
                     allFunctions.forEach(functionName => {
-                        if (!exportedNames || !exportedNames.has(functionName)) { // 如果函數沒被使用
-                            // 從modifiedCode中移除這個函數
+                        if (!exportedNamesArray.includes(functionName)) { // 如果函數名稱不存在於 exportedNamesArray
                             modifiedCode = modifiedCode.replace(new RegExp(`function ${functionName}_\\([\\s\\S]*?\\) \\{[\\s\\S]*?\\}[\\s\\S]*?export const ${functionName} = Island\\(${functionName}_\\);`, 'g'), '');
                         }
                     });
@@ -100,6 +81,7 @@ export default function vitePluginCleanDevCode(): Plugin {
                 return modifiedCode;
             }
         },
+        // 對 .ts/.tsx 文件進行轉換
         transform(code, id) {
             if (!/\.[jt]sx?$/.test(id)) {
                 return;
@@ -116,7 +98,7 @@ export default function vitePluginCleanDevCode(): Plugin {
 
             return {
                 code: transformedCode,
-                map: result.map || { mappings: '' }
+                map: result.map || { mappings: '' }// 返回空的來源映射
             };
         },
     }
