@@ -16,7 +16,21 @@ export default function vitePluginCleanDevCode(): Plugin {
         }
         fs.mkdirSync(cacheDir, { recursive: true }); // 創建緩存目錄
     }
+    // 從代码中获取导入
+    function getImportsFromCode(code: string): Set<string> {
+        const importRegex = /import\s+(?:([a-zA-Z0-9_]+),\s*)?{?\s*(.+?)\s*}?\s*from\s+['"].\/(.+?)['"];/g;
 
+        let match;
+        let imports = new Set<string>();
+        while ((match = importRegex.exec(code)) !== null) {
+            let [fullMatch, defaultImport, importedFunctions, fileName] = match;
+            let functions = [];
+            if (defaultImport) functions.push(defaultImport);
+            if (importedFunctions) functions = functions.concat(importedFunctions.split(',').map(func => func.trim()).filter(Boolean));
+            functions.forEach(func => imports.add(`${func} from ${fileName}`));
+        }
+        return imports;
+    }
     return {
         name: 'vite-plugin-clean-dev-code',
         configResolved(resolvedConfig) {
@@ -24,35 +38,39 @@ export default function vitePluginCleanDevCode(): Plugin {
                 clearCacheDir(); // 清空緩存目錄
             }
         },
-        async load(id) {
-            if (id.endsWith('index.page.tsx')) {// 檢查每個 index.page.tsx
-                const filePath = new URL(id).pathname; // 獲取模塊的文件路徑
-                const originalCode = fs.readFileSync(filePath, 'utf-8'); // 讀取模塊的原始內容
-                const importRegex = /import\s+({\s*(.+?)\s*})\s*from\s+['"](.+?)['"];/g;
-                let match;
-                // 檢查程式內的import內容
-                while ((match = importRegex.exec(originalCode)) !== null) {
-                    let [fullMatch, importStatement, importedFunctions, fileName] = match;
+        resolveId(id) {
+            console.log('resolveId ' + id)
+        },
+        load(id) {
+            //console.log('load' + id)
+            if (id.endsWith('index.page.tsx')) {
 
-                    // 將 import 語句中的函式名稱切分為陣列
-                    let functions = importedFunctions ? importedFunctions.split(',') : [];
+                const filePath = new URL(id).pathname;
+                const originalCode = fs.readFileSync(filePath, 'utf-8');
+                const importRegex = /import\s+(?:([a-zA-Z0-9_]+),\s*)?{?\s*(.+?)\s*}?\s*from\s+['"](.+?)['"];/g;
+
+                let match;
+                const imports = getImportsFromCode(originalCode);
+                while ((match = importRegex.exec(originalCode)) !== null) {
+                    let [fullMatch, defaultImport, importedFunctions, fileName] = match;
+                    let functions = [];
+                    if (defaultImport) functions.push(defaultImport);
+                    if (importedFunctions) functions = functions.concat(importedFunctions.split(',').map(func => func.trim()).filter(Boolean));
+
                     if (fileName.startsWith('./')) {
                         let idPath = path.dirname(id);
                         fileName = path.join(idPath, fileName.replace("./", "")).replace(/.*\\pages\\/, '').replace(/\\/g, '/');
 
-                        // 將 fileName 添加到 importedFunctionsMap
                         if (importedFunctionsMap.has(fileName)) {
-                            // 如果 importedFunctionsMap 已经包含 fileName，將函式添加到已存在的 Set 中
+                            //console.log(fileName)
                             let existingFunctions = importedFunctionsMap.get(fileName)!;
-
                             if (functions.length >= 1) {
-                                // 如果 import 語句中包含多個函式名稱，則添加所有函式到 Set 中
                                 functions.forEach(func => existingFunctions.add(func));
                             }
                         } else {
-                            // 如果 importedFunctionsMap 不包含 fileName，則創建一個新的 Set 並添加函式
                             importedFunctionsMap.set(fileName, new Set(functions));
                         }
+
                     }
                 }
 
@@ -80,6 +98,8 @@ export default function vitePluginCleanDevCode(): Plugin {
                 }
                 return modifiedCode;
             }
+
+
         },
         // 對 .ts/.tsx 文件進行轉換
         transform(code, id) {
@@ -100,6 +120,24 @@ export default function vitePluginCleanDevCode(): Plugin {
                 code: transformedCode,
                 map: result.map || { mappings: '' }// 返回空的來源映射
             };
+        },
+        handleHotUpdate({ server, file }) {
+            if (server) {
+                const { moduleGraph } = server;
+
+                if (moduleGraph) {
+                    const targetPath = 'D:/arkhi/pages';
+
+                    for (let [id, module] of moduleGraph.idToModuleMap) {
+                        if (id.includes(targetPath) || (module.file && module.file.includes(targetPath))) {
+                            console.log(`Invalidating module: ${module.id}`);
+                            moduleGraph.invalidateModule(module);
+                            //console.log(`Module file: ${module.file}`);
+                            //console.log(module);
+                        }
+                    }
+                }
+            }
         },
     }
 }
