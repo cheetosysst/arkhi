@@ -3,11 +3,10 @@ import ssr from "vite-plugin-ssr/plugin";
 import { arkhiCMS } from "./arkhi/plugins";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { UserConfig } from "vite";
-import vitePluginCleanDevCode from "./clean-code";
-
+import CleanUnusedExportsPlugin from "./clean-code";
 const config: UserConfig = {
 	plugins: [react(), ssr(), tsconfigPaths(), arkhiCMS(),
-	vitePluginCleanDevCode(),
+	CleanUnusedExportsPlugin('index.page'),
 	],
 };
 

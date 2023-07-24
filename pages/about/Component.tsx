@@ -230,3 +230,213 @@ function TodoList_({ temp, ...props }: { temp?: string }) {
 }
 
 export const TodoList = Island(TodoList_);
+
+// Switch Component
+function Switch_({ temp, ...props }: { temp?: string }) {
+    const [on, setOn] = useState(false);
+    return (
+        <button type="button" {...props} onClick={() => setOn(!on)}>
+            Switch is {on ? "ON" : "OFF"}
+        </button>
+    );
+}
+
+export const Switch = Island(Switch_);
+
+// TextChanger Component
+function TextChanger_({ temp, ...props }: { temp?: string }) {
+    const [text, setText] = useState("");
+    return (
+        <div {...props}>
+            <input type="text" onChange={(e) => setText(e.target.value)} value={text} />
+            <div>Entered text: {text}</div>
+        </div>
+    );
+}
+
+export const TextChanger = Island(TextChanger_);
+
+// ProgressBar Component
+function ProgressBar_({ temp, ...props }: { temp?: string }) {
+    const [progress, setProgress] = useState(0);
+    return (
+        <div {...props}>
+            <input type="range" min="0" max="100" value={progress} onChange={(e) => setProgress(Number(e.target.value))} />
+            <div>Progress: {progress}%</div>
+        </div>
+    );
+}
+
+export const ProgressBar = Island(ProgressBar_);
+
+// Multiplier Component
+function Multiplier_({ temp, ...props }: { temp?: string }) {
+    const [num, setNum] = useState(1);
+    return (
+        <button type="button" {...props} onClick={() => setNum(num * 2)}>
+            Multiplier {num}
+        </button>
+    );
+}
+
+export const Multiplier = Island(Multiplier_);
+
+// Divisor Component
+function Divisor_({ temp, ...props }: { temp?: string }) {
+    const [num, setNum] = useState(1);
+    return (
+        <button type="button" {...props} onClick={() => setNum(num / 2)}>
+            Divisor {num}
+        </button>
+    );
+}
+
+export const Divisor = Island(Divisor_);
+
+// NoteMaker Component
+function NoteMaker_({ temp, ...props }: { temp?: string }) {
+    const [notes, setNotes] = useState<string[]>([]);
+    const [newNote, setNewNote] = useState("");
+    return (
+        <div {...props}>
+            <input type="text" value={newNote} onChange={(e) => setNewNote(e.target.value)} />
+            <button onClick={() => { setNotes([...notes, newNote]); setNewNote(""); }}>Add Note</button>
+            <ul>
+                {notes.map((note, index) =>
+                    <li key={index}>{note}</li>
+                )}
+            </ul>
+        </div>
+    );
+}
+
+export const NoteMaker = Island(NoteMaker_);
+
+// BrightnessController Component
+function BrightnessController_({ temp, ...props }: { temp?: string }) {
+    const [brightness, setBrightness] = useState(50);
+    return (
+        <div {...props}>
+            <input type="range" min="0" max="100" value={brightness} onChange={(e) => setBrightness(Number(e.target.value))} />
+            <div>Brightness: {brightness}</div>
+        </div>
+    );
+}
+
+export const BrightnessController = Island(BrightnessController_);
+
+// FontSizeController Component
+function FontSizeController_({ temp, ...props }: { temp?: string }) {
+    const [fontSize, setFontSize] = useState(16);
+    return (
+        <div {...props} style={{ fontSize: `${fontSize}px` }}>
+            <input type="range" min="8" max="32" value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} />
+            <div>Change my font size</div>
+        </div>
+    );
+}
+
+export const FontSizeController = Island(FontSizeController_);
+
+// Stopwatch Component
+function Stopwatch_({ temp, ...props }: { temp?: string }) {
+    const [time, setTime] = useState(0);
+    let interval: any;
+
+    const start = () => {
+        interval = setInterval(() => {
+            setTime((prevTime) => prevTime + 1)
+        }, 1000);
+    }
+
+    const stop = () => {
+        clearInterval(interval);
+    }
+
+    const reset = () => {
+        clearInterval(interval);
+        setTime(0);
+    }
+
+    return (
+        <div {...props}>
+            <h1>Stopwatch: {time}</h1>
+            <button onClick={start}>Start</button>
+            <button onClick={stop}>Stop</button>
+            <button onClick={reset}>Reset</button>
+        </div>
+    );
+}
+
+export const Stopwatch = Island(Stopwatch_);
+
+// Currency Converter Component
+function CurrencyConverter_({ temp, ...props }: { temp?: string }) {
+    const [amount, setAmount] = useState(0);
+    const [conversionRate, setConversionRate] = useState(0.83); // Example rate for USD to EUR
+
+    const convert = () => amount * conversionRate;
+
+    return (
+        <div {...props}>
+            <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+            <p>{amount} USD is equivalent to {convert()} EUR</p>
+        </div>
+    );
+}
+
+export const CurrencyConverter = Island(CurrencyConverter_);
+
+// TextMirror Component
+function TextMirror_({ temp, ...props }: { temp?: string }) {
+    const [text, setText] = useState("");
+
+    return (
+        <div {...props}>
+            <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
+            <p>Mirrored Text: {text.split('').reverse().join('')}</p>
+        </div>
+    );
+}
+
+export const TextMirror = Island(TextMirror_);
+
+// TemperatureConverter Component
+function TemperatureConverter_({ temp, ...props }: { temp?: string }) {
+    const [celcius, setCelcius] = useState(0);
+
+    const convert = () => (celcius * 9 / 5) + 32;
+
+    return (
+        <div {...props}>
+            <input type="number" value={celcius} onChange={(e) => setCelcius(Number(e.target.value))} />
+            <p>{celcius}°C is equivalent to {convert()}°F</p>
+        </div>
+    );
+}
+
+export const TemperatureConverter = Island(TemperatureConverter_);
+
+// PasswordGenerator Component
+function PasswordGenerator_({ temp, ...props }: { temp?: string }) {
+    const [password, setPassword] = useState("");
+
+    const generatePassword = () => {
+        const length = 12;
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let pass = "";
+        for (let i = 0; i < length; i++) {
+            pass += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setPassword(pass);
+    }
+
+    return (
+        <div {...props}>
+            <button onClick={generatePassword}>Generate Password</button>
+            <p>Password: {password}</p>
+        </div>
+    );
+}
+
+export const PasswordGenerator = Island(PasswordGenerator_);
