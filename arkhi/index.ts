@@ -3,7 +3,7 @@
 import express from "express";
 import compression from "compression";
 import { renderPage } from "vite-plugin-ssr";
-import { root } from "./root.js";
+import { root } from "@/arkhi/root";
 
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { createContext } from "@/arkhi/context";
