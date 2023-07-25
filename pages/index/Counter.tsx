@@ -1,8 +1,10 @@
 import { Island } from "@/arkhi/client";
-import React, { useState } from "react";
+import { trpc } from "@/arkhi/client/trpcProxy";
+import React, { PropsWithChildren, useState } from "react";
 
-function Counter_({ temp, ...props }: { temp?: string }) {
+function Counter_({ ...props }: PropsWithChildren) {
 	const [count, setCount] = useState(0);
+	trpc.example.hello.query({ text: "John Doe" });
 	return (
 		<button
 			type="button"
