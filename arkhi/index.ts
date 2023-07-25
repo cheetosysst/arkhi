@@ -32,14 +32,9 @@ async function startServer() {
 		app.use(viteDevMiddleware);
 	}
 
-	app.use((req, res, next) => {
-		console.log("#", req.url);
-		next();
-	});
-
 	const { appRouter } = await import("@/arkhi/trpc");
 	app.use(
-		"/trpc/*",
+		"/trpc",
 		trpcExpress.createExpressMiddleware({
 			router: appRouter,
 			createContext,
