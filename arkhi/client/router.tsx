@@ -54,38 +54,37 @@ export class ClientRouter {
 
 	private prefetchVisible(): void {
 		if (this.setting.mode !== 'visible') return;
-		if ("IntersectionObserver" in window) {
-			// cant use Logical OR assignment ||=, make the error [vite] Error when evaluating SSR
-			this.observer ||
-				(this.observer = new IntersectionObserver(
-					(entries, observer) => {
-						entries.forEach(async (entry) => {
-							const href: string = new URL(
-								entry.target.getAttribute("href") || "",
-								location.origin
-							).href;
+		if ("IntersectionObserver" in window === false) return;
+		// cant use Logical OR assignment ||=, make the error [vite] Error when evaluating SSR
+		this.observer ||
+			(this.observer = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach(async (entry) => {
+						const href: string = new URL(
+							entry.target.getAttribute("href") || "",
+							location.origin
+						).href;
 
-							if (this.prefetched.has(href)) {
-								observer.unobserve(entry.target);
-								return;
-							}
+						if (this.prefetched.has(href)) {
+							observer.unobserve(entry.target);
+							return;
+						}
 
-							if (entry.isIntersecting) {
-								this.createLink(href);
-								await vitePrefech(entry.target.getAttribute("href") || "");
-								// console.log(`${href} be prefectched`)
-								observer.unobserve(entry.target);
-							}
-						});
-					}
-				));
+						if (entry.isIntersecting) {
+							this.createLink(href);
+							await vitePrefech(entry.target.getAttribute("href") || "");
+							// console.log(`${href} be prefectched`)
+							observer.unobserve(entry.target);
+						}
+					});
+				}
+			));
 
-			Array.from(document.querySelectorAll("a"))
-				.filter((element) => {
-					return this.prefetched.has(element.href) === false;
-				})
-				.forEach((element) => this.observer.observe(element));
-		}
+		Array.from(document.querySelectorAll("a"))
+			.filter((element) => {
+				return this.prefetched.has(element.href) === false;
+			})
+			.forEach((element) => this.observer.observe(element));
 	}
 	private prefetchPage(): void {
 		if (this.setting.mode !== 'page') return;
@@ -124,7 +123,7 @@ export class ClientRouter {
 				const htmlString = await response.text();
 				const parser = new DOMParser();
 				const html = parser.parseFromString(htmlString, "text/html");
-				this.prefetchNasted(html, layer+1);
+				this.prefetchNasted(html, layer + 1);
 
 			} catch (error: any) {
 				console.error("Fetch Error:", error.message);
