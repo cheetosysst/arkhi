@@ -1,2 +1,2 @@
 export * from "./cms";
-export * from "./clean-code"
+export * from "./cean-exports"

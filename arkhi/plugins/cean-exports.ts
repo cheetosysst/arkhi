@@ -2,7 +2,7 @@ import { Plugin } from 'vite';
 import path from 'path';
 import ts from 'typescript';
 // 清除未使用導出插件
-function CleanUnusedExportsPlugin(): Plugin {
+function arkhiCleaneExports(): Plugin {
     const moduleToExportNames = new Map(); // 存儲模塊及其對應的輸出函數名稱的Map
     const specifierArray: string[] = []; // 儲存被動態引入的模組
 
@@ -16,9 +16,9 @@ function CleanUnusedExportsPlugin(): Plugin {
         name: 'clean-unused-exports-plugin',
         apply: 'build', // 只在 build 時使用
         resolveDynamicImport(specifier) {
-            // 如果導入的模組不是renderer導入，則將其添加到specifierArray
+            // 如果導入的頁面模組不是renderer導入，則將其添加到specifierArray
             if (typeof specifier === 'string' && !specifier.includes('/renderer/')) {
-                specifierArray.push(specifier); // 將規範符添加到規範陣列
+                specifierArray.push(specifier);
             }
         },
         transform(code, id, options) {
@@ -26,7 +26,7 @@ function CleanUnusedExportsPlugin(): Plugin {
             if (options?.ssr != true) {
                 return
             }
-            // 如果id包含規範陣列中的任何項，則獲取該規範符
+            // 如果id在specifierArray中
             const specifier = specifierArray.find(spec => id.includes(spec));
             if (specifier) {
                 // 解析文件路徑並創建 TypeScript 源文件
@@ -41,12 +41,11 @@ function CleanUnusedExportsPlugin(): Plugin {
                 ts.forEachChild(sourceFile, node => {
                     // 如果節點是導入聲明
                     if (ts.isImportDeclaration(node)) {
-                        // 獲取模塊規範符
                         const moduleSpecifier = node.moduleSpecifier.getText(sourceFile).slice(1, -1);
-                        // 如果模塊規範符以'./'或'../'開頭
+                        // 如果引入模塊相對路徑以'./'或'../'開頭 (本地引入)
                         if (moduleSpecifier.startsWith('./') || moduleSpecifier.startsWith('../')) {
                             // 解析模組的絕對路徑
-                            const absoluteModuleSpecifier = path.resolve(path.dirname(id), moduleSpecifier).replace(/\\/g, '/') + path.extname(id);  // entryFile裡模組的路徑
+                            const absoluteModuleSpecifier = path.resolve(path.dirname(id), moduleSpecifier).replace(/\\/g, '/') + path.extname(id);
                             const imports = moduleToExportNames.get(absoluteModuleSpecifier); // 獲取導入的模塊
                             // 若已經有全輸出 '*'，則跳過這個模組
                             if (imports && imports.has('*')) {
@@ -80,7 +79,7 @@ function CleanUnusedExportsPlugin(): Plugin {
                                         }
                                     });
                                 }
-                                // 將絕對模塊規範符和導出名稱集合添加到moduleToExportNames
+                                // 將模塊絕對路徑和導出名稱集合添加到moduleToExportNames
                                 moduleToExportNames.set(absoluteModuleSpecifier, exportedNamesSet);
                             }
                         }
@@ -110,4 +109,4 @@ function CleanUnusedExportsPlugin(): Plugin {
         },
     };
 }
-export { CleanUnusedExportsPlugin }
+export { arkhiCleaneExports }
