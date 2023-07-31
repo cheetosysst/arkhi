@@ -1,15 +1,16 @@
 import { Plugin } from "vite";
 import path from "path";
 import ts from "typescript";
+
 function arkhiCleanExports(): Plugin {
 	const moduleToExportNames = new Map<string, Set<string>>();
-	const specifierArray: string[] = [];
+	const specifiers: string[] = [];
 	const functionDeclarationRegex = /function (\w+)_\(/g;
 
-	// Island fuction 的正則表達式
-	const createRemovalRegex = (funcName: string) =>
+	// Island function 的正則表達式
+	const createRemovalRegex = (name: string) =>
 		new RegExp(
-			`function ${funcName}_\\([\\s\\S]*?\\) \\{[\\s\\S]*?\\}[\\s\\S]*?export const ${funcName} = Island\\(${funcName}_\\);`,
+			`function ${name}_\\([\\s\\S]*?\\) \\{[\\s\\S]*?\\}[\\s\\S]*?export const ${name} = Island\\(${name}_\\);`,
 			"g"
 		);
 
@@ -22,13 +23,12 @@ function arkhiCleanExports(): Plugin {
 				typeof specifier === "string" &&
 				!specifier.includes("/renderer/")
 			) {
-				specifierArray.push(specifier);
+				specifiers.push(specifier);
 			}
 		},
 		transform(code, id, options) {
-			// 如果不是服務端渲染(SSR)構建則返回
 			if (options?.ssr != true) return;
-			const specifier = specifierArray.find((spec) => id.includes(spec));
+			const specifier = specifiers.find((spec) => id.includes(spec));
 			if (specifier) {
 				const sourceFile = ts.createSourceFile(
 					specifier,
@@ -91,13 +91,12 @@ function arkhiCleanExports(): Plugin {
 					functionDeclarationRegex
 				)) {
 					const funcName = functionName[1];
-					// 只在export函數名不在exportedNamesSet中時替換
-					if (!exportedNamesSet.has(funcName.trim())) {
-						modifiedCode = modifiedCode.replace(
-							createRemovalRegex(funcName),
-							""
-						);
-					}
+					// 只在 export 函數名不在 exportedNamesSet 中時替換
+					if (exportedNamesSet.has(funcName.trim())) continue;
+					modifiedCode = modifiedCode.replace(
+						createRemovalRegex(funcName),
+						""
+					);
 				}
 				return { code: modifiedCode };
 			}
