@@ -1,1 +1,1 @@
-export * from './arki-plugin'
+export * from './arkhi-plugin'
