@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import Counter from "./Counter";
 import Accumulator from "./Accumulator";
+import Greet from "./Greetings";
 
 export { Page };
 
@@ -11,6 +12,7 @@ function Page() {
 			This page is:
 			<ul>
 				<li>Rendered to HTML.</li>
+				<Greet />
 				<li>
 					Non-Interactive. <Counter />
 					<br />
