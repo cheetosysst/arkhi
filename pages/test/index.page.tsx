@@ -8,7 +8,7 @@ export { Page };
 function Page() {
 	return (
 		<>
-			<h1>Test</h1>
+			<h1 className="text-3xl font-bold underline">Test</h1>
 			<p>Test prefetch here.</p>
 			<Link href="/">To Home</Link>
 		</>

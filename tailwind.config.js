@@ -2,8 +2,11 @@
 export default {
   content: [
     './arkhi/**/*.{html, js, ts, jsx, tsx}',
+    './arkhi/**/*',
     './pages/**/*.{html, js, ts, jsx, tsx}',
-    './**/*.{html, js, ts, jsx, tsx}'
+    './pages/**/*',
+    './renderer/**/.{html, js, ts, jsx, tsx}',
+    "./renderer/**/*"
   ],
   theme: {
     extend: {},
