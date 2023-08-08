@@ -5,7 +5,7 @@
     "dev": "npm run server",
     "prod": "npm run build && npm run server:prod",
     "build": "vite build",
-    "server": "vite-node ./arkhi/index.ts",
+    "server": "vite-node -w ./arkhi/index.ts",
     "server:prod": "cross-env NODE_ENV=production ts-node ./arkhi/index.ts"
   },
   "dependencies": {

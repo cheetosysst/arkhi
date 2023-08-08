@@ -1,4 +1,5 @@
 // Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
+// import { ViteNodeServer } from "vite-node/server";
 
 import express from "express";
 import compression from "compression";
@@ -23,6 +24,12 @@ async function startServer() {
 		app.use(sirv(`${root}/dist/client`));
 	} else {
 		const vite = await import("vite");
+		// const server = new ViteNodeServer({
+		// 	optimizeDeps: {
+		// 		// It's recommended to disable deps optimization
+		// 		disabled: true,
+		// 	},
+		// });
 		const viteDevMiddleware = (
 			await vite.createServer({
 				root,
@@ -57,7 +64,13 @@ async function startServer() {
 	});
 
 	const port = process.env.PORT || 3000;
-	app.listen(port);
+	const server = app.listen(port);
+	if (import.meta.hot) {
+		import.meta.hot.on("vite:beforeFullReload", () => {
+			console.log("byebye");
+			server.close((temp) => {});
+		});
+	}
 
 	console.log(`Server running at ${getBaseUrl()}`);
 }

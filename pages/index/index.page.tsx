@@ -3,7 +3,7 @@ import Counter from "./Counter";
 import Accumulator from "./Accumulator";
 
 import Greet from "./Greetings";
-import { ColorChanger } from '../about/Component'
+import { ColorChanger } from "../about/Component";
 
 export { Page };
 
