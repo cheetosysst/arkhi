@@ -18,7 +18,7 @@ async function render(pageContext: PageContextServer) {
   )
 
   // See https://vite-plugin-ssr.com/head
-  const { documentProps } = pageContext.exports
+  const { documentProps, PrefetchSetting } = pageContext.exports
   const title = (documentProps && documentProps.title) || 'Vite SSR app'
   const desc = (documentProps && documentProps.description) || 'App using Vite + vite-plugin-ssr'
 
@@ -33,6 +33,7 @@ async function render(pageContext: PageContextServer) {
       </head>
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
+        <div id="prefetch-setting" data-setting = ${JSON.stringify(PrefetchSetting || "")}></div>
       </body>
     </html>`
 

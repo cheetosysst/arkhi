@@ -8,7 +8,7 @@ function Page() {
 	return (
 		<>
 			<h1>Test</h1>
-			<p>Test prefetch Nast here.</p>
+			<p>Test prefetch Nested here.</p>
 		</>
 	);
 }

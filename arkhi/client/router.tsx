@@ -1,15 +1,16 @@
 import { prefetch as vitePrefech } from 'vite-plugin-ssr/client/router'
-type PrefetchMode = 'hover' | 'visible' | 'page' | 'nasted';
+
+type PrefetchMode = 'hover' | 'visible' | 'page' | 'nested';
+type PrefetchSetting = { mode?: PrefetchMode };
 export class ClientRouter {
 	private prefetched: Set<String> = new Set<String>();
 
-	private setting: {
-		mode?: PrefetchMode,
-	} = { mode: "visible" }
+	private pageSettingMap: Map<String, PrefetchSetting> = new Map<String, PrefetchSetting>();
+	private setting: PrefetchSetting = { mode: "visible" }
 	private observer: IntersectionObserver;
 	private render: Function;
 
-	constructor({ render, setting }: { render: Function, setting: { mode?: PrefetchMode } }) {
+	constructor(render: Function, setting: PrefetchSetting) {
 
 		this.render = render;
 		setting && (this.setting = setting);
@@ -53,7 +54,9 @@ export class ClientRouter {
 	}
 
 	private prefetchVisible(): void {
-		if (this.setting.mode !== 'visible') return;
+		// console.log("visible", window.location.href);
+		const pageSetting = this.pageSettingMap.get(window.location.href);
+		if (pageSetting?.mode ? pageSetting?.mode !== 'visible' : this.setting.mode !== 'visible') return;
 		if ("IntersectionObserver" in window === false) return;
 		// cant use Logical OR assignment ||=, make the error [vite] Error when evaluating SSR
 		this.observer ||
@@ -87,7 +90,9 @@ export class ClientRouter {
 			.forEach((element) => this.observer.observe(element));
 	}
 	private prefetchPage(): void {
-		if (this.setting.mode !== 'page') return;
+		// console.log("page", window.location.href);
+		const pageSetting = this.pageSettingMap.get(window.location.href);
+		if (pageSetting?.mode ? pageSetting?.mode !== 'page' : this.setting.mode !== 'page') return;
 		document.querySelectorAll("a").forEach(async (element) => {
 			const href: string = new URL(
 				element.getAttribute('href') || "",
@@ -103,14 +108,14 @@ export class ClientRouter {
 		})
 	}
 
-	private prefetchNasted(dom: Document, layer: number): void {
-		if (this.setting.mode !== 'nasted') return;
+	private prefetchNested(dom: Document, layer: number): void {
+		const pageSetting = this.pageSettingMap.get(dom.location.href);
+		if (pageSetting?.mode ? pageSetting?.mode !== 'nested' :this.setting.mode !== 'nested') return;
 		dom.querySelectorAll('a').forEach(async (element) => {
 			const href: string = new URL(
 				element.getAttribute('href') || "",
 				location.origin
 			).href;
-
 			if (this.prefetched.has(href)) {
 				return;
 			}
@@ -123,10 +128,14 @@ export class ClientRouter {
 				const htmlString = await response.text();
 				const parser = new DOMParser();
 				const html = parser.parseFromString(htmlString, "text/html");
-				this.prefetchNasted(html, layer + 1);
+				const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+				const PrefetchSetting = JSON.parse(PrefetchSettingJson);
+				PrefetchSetting && this.setPagePrefetchRule(href, PrefetchSetting);
+				if(this.prefetched.has(href))return;
+				this.prefetchNested(html, layer + 1);
 
 			} catch (error: any) {
-				console.error("Fetch Error:", error.message);
+				console.error("Fetch Error:", error, error.message);
 			}
 		})
 	}
@@ -135,9 +144,11 @@ export class ClientRouter {
 	 * modify html <a> tag behavior
 	 */
 	private handleClientLinkBehavior(): void {
+		// console.log("handle link", window.location.href);
+		const pageSetting = this.pageSettingMap.get(window.location.href);
 		document.querySelectorAll("a").forEach((element) => {
 			//hover mode
-			if (this.setting.mode === 'hover') {
+			if (pageSetting?.mode ? pageSetting?.mode === 'hover' : this.setting.mode === 'hover') {
 				element.addEventListener('mouseover', (event: MouseEvent) => {
 					event.preventDefault();
 					const target = event.target as HTMLTextAreaElement;
@@ -186,6 +197,10 @@ export class ClientRouter {
 
 			const parser = new DOMParser();
 			const html = parser.parseFromString(htmlString, "text/html");
+			const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
+			PrefetchSetting && this.setPagePrefetchRule(href, PrefetchSetting);
+
 			document.body = html.body;
 
 			this.render();
@@ -213,11 +228,16 @@ export class ClientRouter {
 	 * Should be called in _default.page.client render function.
 	 *
 	 */
-	public beforeRender() {
+	public beforeRender(): void {
 		this.handleClientLinkBehavior();
 		this.prefetchVisible();
 		this.prefetchPage();
-		this.prefetchNasted(document, 0);
+		this.prefetchNested(document, 0);
+	}
+
+	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
+		// console.log(path);
+		this.pageSettingMap.set(path, setting);
 	}
 }
 

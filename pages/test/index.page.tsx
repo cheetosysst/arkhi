@@ -4,7 +4,7 @@ import { Link } from "@/arkhi/client";
 
 import "./code.css";
 export { Page };
-
+export const PrefetchSetting = { mode: 'hover' };
 function Page() {
 	return (
 		<>
@@ -13,7 +13,7 @@ function Page() {
 			<Link href="/">To Home</Link>
 			<div className="big-gap"></div>
 
-			<Link href="/nasted">To Nasted</Link>
+			<Link href="/nested">To Nested</Link>
 		</>
 	);
 }
