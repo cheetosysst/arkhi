@@ -199,7 +199,7 @@ export class ClientRouter {
 			const html = parser.parseFromString(htmlString, "text/html");
 			const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
 			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
-			PrefetchSetting && this.setPagePrefetchRule(href, PrefetchSetting);
+			PrefetchSetting && this.setPagePrefetchRule(new URL(href, location.origin).href, PrefetchSetting);
 
 			document.body = html.body;
 
@@ -229,6 +229,13 @@ export class ClientRouter {
 	 *
 	 */
 	public beforeRender(): void {
+		const PrefetchSettingJson = document.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
+
+		PrefetchSetting && this.setPagePrefetchRule(document.location.href, PrefetchSetting);
+		// console.log(document.location, this.pageSettingMap)
+
+
 		this.handleClientLinkBehavior();
 		this.prefetchVisible();
 		this.prefetchPage();
@@ -237,7 +244,11 @@ export class ClientRouter {
 
 	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
 		// console.log(path);
-		this.pageSettingMap.set(path, setting);
+		// const href: string = new URL(
+		// 	element.getAttribute('href') || "",
+		// 	location.origin
+		// ).href;
+		this.pageSettingMap.get(path) || this.pageSettingMap.set(path, setting);
 	}
 }
 
