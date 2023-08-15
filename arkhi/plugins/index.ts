@@ -1,1 +1,1 @@
-export * from "./cms";
+export * from './arkhi-plugin'

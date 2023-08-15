@@ -1,4 +1,5 @@
 import React from "react";
+import { ReverseCounter, Adder } from './Component';
 // import './code.css'
 
 export { Page };
@@ -10,6 +11,7 @@ function Page() {
 			<p>
 				Example of using <code>vite-plugin-ssr</code>.
 			</p>
+			<Adder />
 		</>
 	);
 }
