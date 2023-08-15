@@ -1,7 +1,6 @@
 import { Plugin } from "vite";
 import { readdirSync, readFileSync, statSync } from "fs";
 import path from "path";
-
 const postExtensions = [".md", ".mdx"];
 
 //文章的metadata
@@ -43,7 +42,7 @@ function parseConfig(directory: string): ArticleConfig | undefined {
 function parseContents(directory: string): Content {
 	const files = readdirSync(directory);
 	const content: Content = {
-		children: [] as unknown as ContentNode,
+		children: {},
 		name: path.parse(directory).base,
 		path: "",
 		type: "",
@@ -78,7 +77,7 @@ function parseContents(directory: string): Content {
 
 		if (isContent) {
 			content.children[file] = {
-				children: [] as unknown as ContentNode,
+				children: {},
 				name: pathInfo.name,
 				path: filePath,
 				type: pathInfo.ext,
@@ -94,40 +93,53 @@ function parseContents(directory: string): Content {
 	return content;
 }
 
-function compileMetadata(): Content {
+export function compileMetadata(): Content {
 	const contentDirectory = path.join(process.cwd(), "/content");
 	const contentSystem = parseContents(contentDirectory);
 	return contentSystem;
 }
 
 function arkhiCMS(): Plugin {
-	contents;
+	let contents = {
+		root: compileMetadata()
+	};
 	return {
 		name: "vite-plugin-arkhi-cms",
-		buildStart() {
-			contents.root = compileMetadata();
-		},
-		enforce: "pre",
-		configureServer({ watcher }) {
-			watcher.add(`${process.cwd}/content/**`);
-			watcher.on("change", (filePath) => {
-				// TODO 在更新檔案時，更新該位置的樹
-				contents.root = compileMetadata();
+
+		configureServer(server) {
+			// 提供API端點供前端訪問CMS內容
+			server.middlewares.use('/contents', (req, res, next) => {
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify(contents.root));
 			});
+		},
+		resolveId(id) {
+			if (id === 'virtual:contents') return id;
+		},
+
+		load(id) {
+			if (id === 'virtual:contents') {
+				const jsonString = JSON.stringify(contents.root);
+				return `export default ${jsonString}`;
+			}
+		},
+		handleHotUpdate({ file, server }) {
+			if (file.includes('/content/')) {
+				contents.root = compileMetadata(); // 更新 contents.root
+				const mod = server.moduleGraph.getModuleById('virtual:contents');
+				if (mod) {
+					server.moduleGraph.invalidateModule(mod); // 無效化該模塊，使模塊path指向的文件reload
+					mod.importers.forEach((importer) => {
+						server.moduleGraph.invalidateModule(importer);
+					});
+				}
+			}
 		},
 	};
 }
 
-const contents = {
-	root: {
-		children: [] as unknown as ContentNode,
-		name: "",
-		path: "",
-		type: "",
-		assets: [],
-		config: undefined,
-	} as Content,
+export const contents = {
+	root: compileMetadata()
 };
-
-export { arkhiCMS, contents };
+export { arkhiCMS };
 export type { Content, ContentNode, ArticleConfig };
