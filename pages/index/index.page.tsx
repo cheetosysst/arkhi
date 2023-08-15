@@ -4,6 +4,7 @@ import Accumulator from "./Accumulator";
 import { Island } from "@/arkhi/client";
 
 export { Page };
+export const PrefetchSetting = { mode: 'hover' };
 
 const IslandCounter = Island("index", Counter);
 const IslandAccumulator = Island("index", Accumulator);
