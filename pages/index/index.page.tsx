@@ -3,6 +3,7 @@ import Counter from "./Counter";
 import Accumulator from "./Accumulator";
 import { ColorChanger } from '../about/Component'
 export { Page };
+export const PrefetchSetting = { mode: 'hover' };
 
 function Page() {
 	return (

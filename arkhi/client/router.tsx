@@ -1,10 +1,20 @@
+import { prefetch as vitePrefech } from 'vite-plugin-ssr/client/router'
+
+type PrefetchMode = 'hover' | 'visible' | 'page' | 'nested';
+type PrefetchSetting = { mode?: PrefetchMode };
 export class ClientRouter {
 	private prefetched: Set<String> = new Set<String>();
+
+	private pageSettingMap: Map<String, PrefetchSetting> = new Map<String, PrefetchSetting>();
+	private setting: PrefetchSetting = { mode: "visible" }
 	private observer: IntersectionObserver;
 	private render: Function;
 
-	constructor(opt: { render: Function }) {
-		this.render = opt.render;
+	constructor(render: Function, setting: PrefetchSetting) {
+
+		this.render = render;
+		setting && (this.setting = setting);
+
 		if (window?.history) {
 			window.addEventListener("popstate", (e) => this.onPop(e));
 			this.prefetchVisible();
@@ -12,59 +22,140 @@ export class ClientRouter {
 	}
 
 	private createLink: any = (url: string): void => {
-		//create link for prefatch
-		const linkElement = document.createElement("link");
-		linkElement.rel = "prefetch";
-		linkElement.href = url;
-		linkElement.as = "document";
+		// //create link for prefatch
+		// const linkElement = document.createElement("link");
+		// linkElement.rel = "prefetch";
+		// linkElement.href = url;
+		// linkElement.as = "document";
 
-		linkElement.onerror = (err) =>
-			console.error("prefetched error", url, err);
+		// linkElement.onerror = (err) =>
+		// 	console.error("prefetched error", url, err);
 
-		document.head.appendChild(linkElement);
+		// document.head.appendChild(linkElement);
 
 		const href = new URL(url, location.origin).href;
 		this.prefetched.add(href);
 	};
 
-	private prefetchVisible(): void {
-		if ("IntersectionObserver" in window) {
-			// cant use Logical OR assignment ||=, make the error [vite] Error when evaluating SSR
-			this.observer ||
-				(this.observer = new IntersectionObserver(
-					(entries, observer) => {
-						entries.forEach((entry) => {
-							const href: string = new URL(
-								entry.target.getAttribute("href") || "",
-								location.origin
-							).href;
+	private async prefetchHover(element: HTMLTextAreaElement): Promise<Boolean> {
+		const href: string = new URL(
+			element.getAttribute('href') || "",
+			location.origin
+		).href;
 
-							if (this.prefetched.has(href)) {
-								observer.unobserve(entry.target);
-								return;
-							}
-
-							if (entry.isIntersecting) {
-								this.createLink(href);
-								observer.unobserve(entry.target);
-							}
-						});
-					}
-				));
-
-			Array.from(document.querySelectorAll("a"))
-				.filter((element) => {
-					return this.prefetched.has(element.href) === false;
-				})
-				.forEach((element) => this.observer.observe(element));
+		if (this.prefetched.has(href)) {
+			return true;
 		}
+		this.createLink(href);
+
+		await vitePrefech(element.getAttribute('href') || "");
+		// console.log(`${href} be prefectched`)
+		return true;
+	}
+
+	private prefetchVisible(): void {
+		// console.log("visible", window.location.href);
+		const pageSetting = this.pageSettingMap.get(window.location.href);
+		if (pageSetting?.mode ? pageSetting?.mode !== 'visible' : this.setting.mode !== 'visible') return;
+		if ("IntersectionObserver" in window === false) return;
+		// cant use Logical OR assignment ||=, make the error [vite] Error when evaluating SSR
+		this.observer ||
+			(this.observer = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach(async (entry) => {
+						const href: string = new URL(
+							entry.target.getAttribute("href") || "",
+							location.origin
+						).href;
+
+						if (this.prefetched.has(href)) {
+							observer.unobserve(entry.target);
+							return;
+						}
+
+						if (entry.isIntersecting) {
+							this.createLink(href);
+							await vitePrefech(entry.target.getAttribute("href") || "");
+							// console.log(`${href} be prefectched`)
+							observer.unobserve(entry.target);
+						}
+					});
+				}
+			));
+
+		Array.from(document.querySelectorAll("a"))
+			.filter((element) => {
+				return this.prefetched.has(element.href) === false;
+			})
+			.forEach((element) => this.observer.observe(element));
+	}
+	private prefetchPage(): void {
+		// console.log("page", window.location.href);
+		const pageSetting = this.pageSettingMap.get(window.location.href);
+		if (pageSetting?.mode ? pageSetting?.mode !== 'page' : this.setting.mode !== 'page') return;
+		document.querySelectorAll("a").forEach(async (element) => {
+			const href: string = new URL(
+				element.getAttribute('href') || "",
+				location.origin
+			).href;
+
+			if (this.prefetched.has(href)) {
+				return;
+			}
+			this.createLink(href);
+			await vitePrefech(element.getAttribute('href') || "");
+			// console.log(`${href} be prefectched`)
+		})
+	}
+
+	private prefetchNested(dom: Document, layer: number): void {
+		const pageSetting = this.pageSettingMap.get(dom.location.href);
+		if (pageSetting?.mode ? pageSetting?.mode !== 'nested' :this.setting.mode !== 'nested') return;
+		dom.querySelectorAll('a').forEach(async (element) => {
+			const href: string = new URL(
+				element.getAttribute('href') || "",
+				location.origin
+			).href;
+			if (this.prefetched.has(href)) {
+				return;
+			}
+
+			this.createLink(href);
+			await vitePrefech(element.getAttribute('href') || "");
+			// console.log(`${href} be prefectched`, layer);
+			try {
+				const response = await fetch(href);
+				const htmlString = await response.text();
+				const parser = new DOMParser();
+				const html = parser.parseFromString(htmlString, "text/html");
+				const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+				const PrefetchSetting = JSON.parse(PrefetchSettingJson);
+				PrefetchSetting && this.setPagePrefetchRule(href, PrefetchSetting);
+				if(this.prefetched.has(href))return;
+				this.prefetchNested(html, layer + 1);
+
+			} catch (error: any) {
+				console.error("Fetch Error:", error, error.message);
+			}
+		})
 	}
 
 	/**
 	 * modify html <a> tag behavior
 	 */
 	private handleClientLinkBehavior(): void {
+		// console.log("handle link", window.location.href);
+		const pageSetting = this.pageSettingMap.get(window.location.href);
 		document.querySelectorAll("a").forEach((element) => {
+			//hover mode
+			if (pageSetting?.mode ? pageSetting?.mode === 'hover' : this.setting.mode === 'hover') {
+				element.addEventListener('mouseover', (event: MouseEvent) => {
+					event.preventDefault();
+					const target = event.target as HTMLTextAreaElement;
+					this.prefetchHover(target);
+				});
+			}
+
 			element.addEventListener("click", (event: MouseEvent) => {
 				event.preventDefault();
 				const target = event.target as HTMLTextAreaElement;
@@ -73,6 +164,9 @@ export class ClientRouter {
 					mode: "go",
 				});
 			});
+
+
+
 		});
 	}
 
@@ -101,8 +195,12 @@ export class ClientRouter {
 				);
 			}
 
-			let parser = new DOMParser();
-			let html = parser.parseFromString(htmlString, "text/html");
+			const parser = new DOMParser();
+			const html = parser.parseFromString(htmlString, "text/html");
+			const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
+			PrefetchSetting && this.setPagePrefetchRule(new URL(href, location.origin).href, PrefetchSetting);
+
 			document.body = html.body;
 
 			this.render();
@@ -130,9 +228,27 @@ export class ClientRouter {
 	 * Should be called in _default.page.client render function.
 	 *
 	 */
-	public beforeRender() {
+	public beforeRender(): void {
+		const PrefetchSettingJson = document.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
+
+		PrefetchSetting && this.setPagePrefetchRule(document.location.href, PrefetchSetting);
+		// console.log(document.location, this.pageSettingMap)
+
+
 		this.handleClientLinkBehavior();
 		this.prefetchVisible();
+		this.prefetchPage();
+		this.prefetchNested(document, 0);
+	}
+
+	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
+		// console.log(path);
+		// const href: string = new URL(
+		// 	element.getAttribute('href') || "",
+		// 	location.origin
+		// ).href;
+		this.pageSettingMap.get(path) || this.pageSettingMap.set(path, setting);
 	}
 }
 
