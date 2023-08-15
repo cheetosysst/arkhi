@@ -2,9 +2,10 @@
 import { renderIslands, ClientRouter } from "@/arkhi/client";
 
 //@ts-ignore
-window.clientRouter ||= new ClientRouter({ render: render, setting: { mode: 'visible' } });
+window.clientRouter ||= new ClientRouter(render, { mode: 'visible' });
 //@ts-ignore
 const clientRouter = window.clientRouter;
+console.log(clientRouter)
 function render() {
 	clientRouter.beforeRender();
 	renderIslands(document.body);
