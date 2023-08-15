@@ -1,7 +1,6 @@
-import { Island } from "@/arkhi/client";
 import React, { useState } from "react";
 
-function Counter_({ temp, ...props }: { temp?: string }) {
+function Counter({ temp, ...props }: { temp?: string }) {
 	const [count, setCount] = useState(0);
 	return (
 		<button
@@ -13,7 +12,5 @@ function Counter_({ temp, ...props }: { temp?: string }) {
 		</button>
 	);
 }
-
-const Counter = Island(Counter_);
 
 export default Counter;

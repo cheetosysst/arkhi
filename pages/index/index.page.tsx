@@ -1,51 +1,55 @@
 import React, { FC } from "react";
 import Counter from "./Counter";
 import Accumulator from "./Accumulator";
-import { ColorChanger } from '../about/Component'
+import { Island } from "@/arkhi/client";
+
 export { Page };
+
+const IslandCounter = Island("index", Counter);
+const IslandAccumulator = Island("index", Accumulator);
 
 function Page() {
 	return (
 		<>
 			<h1>Welcome</h1>
-			<ColorChanger />
+			{/* <ColorChanger /> */}
 			This page is:
 			<ul>
 				<li>Rendered to HTML.</li>
 				<li>
-					Non-Interactive. <Counter />
+					Non-Interactive. <IslandCounter />
 					<br />
-					Interactive. <Counter />
+					Interactive. <IslandCounter />
 					<br />
-					Interactive. <Counter />
-					<br />
-				</li>
-				<li>
-					Non-Interactive. <Counter />
-					<br />
-					Interactive. <Counter />
-					<br />
-					Interactive. <Counter />
+					Interactive. <IslandCounter />
 					<br />
 				</li>
 				<li>
-					Non-Interactive. <Accumulator />
+					Non-Interactive. <IslandCounter />
 					<br />
-					Interactive. <Accumulator />
+					Interactive. <IslandCounter />
 					<br />
-					Interactive. <Accumulator />
+					Interactive. <IslandCounter />
 					<br />
 				</li>
 				<li>
-					Non-Interactive. <Accumulator />
+					Non-Interactive. <IslandAccumulator />
+					<br />
+					Interactive. <IslandAccumulator />
+					<br />
+					Interactive. <IslandAccumulator />
+					<br />
+				</li>
+				<li>
+					Non-Interactive. <IslandAccumulator />
 					<br />
 					<div>
-						Interactive. <Accumulator />
+						Interactive. <IslandAccumulator />
 						<br />
 					</div>
-					Interactive. <Accumulator />
+					Interactive. <IslandAccumulator />
 					<br />
-					Interactive. <Accumulator />
+					Interactive. <IslandAccumulator />
 					<br />
 				</li>
 			</ul>
