@@ -49,16 +49,13 @@ export class ClientRouter {
 		this.createLink(href);
 
 		await vitePrefech(element.getAttribute('href') || "");
-		// console.log(`${href} be prefectched`)
 		return true;
 	}
 
 	private prefetchVisible(): void {
-		// console.log("visible", window.location.href);
 		const pageSetting = this.pageSettingMap.get(window.location.href);
 		if (pageSetting?.mode ? pageSetting?.mode !== 'visible' : this.setting.mode !== 'visible') return;
 		if ("IntersectionObserver" in window === false) return;
-		// cant use Logical OR assignment ||=, make the error [vite] Error when evaluating SSR
 		this.observer ||
 			(this.observer = new IntersectionObserver(
 				(entries, observer) => {
@@ -76,7 +73,6 @@ export class ClientRouter {
 						if (entry.isIntersecting) {
 							this.createLink(href);
 							await vitePrefech(entry.target.getAttribute("href") || "");
-							// console.log(`${href} be prefectched`)
 							observer.unobserve(entry.target);
 						}
 					});
@@ -90,7 +86,6 @@ export class ClientRouter {
 			.forEach((element) => this.observer.observe(element));
 	}
 	private prefetchPage(): void {
-		// console.log("page", window.location.href);
 		const pageSetting = this.pageSettingMap.get(window.location.href);
 		if (pageSetting?.mode ? pageSetting?.mode !== 'page' : this.setting.mode !== 'page') return;
 		document.querySelectorAll("a").forEach(async (element) => {
@@ -104,7 +99,6 @@ export class ClientRouter {
 			}
 			this.createLink(href);
 			await vitePrefech(element.getAttribute('href') || "");
-			// console.log(`${href} be prefectched`)
 		})
 	}
 
@@ -122,7 +116,6 @@ export class ClientRouter {
 
 			this.createLink(href);
 			await vitePrefech(element.getAttribute('href') || "");
-			// console.log(`${href} be prefectched`, layer);
 			try {
 				const response = await fetch(href);
 				const htmlString = await response.text();
@@ -140,14 +133,10 @@ export class ClientRouter {
 		})
 	}
 
-	/**
-	 * modify html <a> tag behavior
-	 */
 	private handleClientLinkBehavior(): void {
-		// console.log("handle link", window.location.href);
 		const pageSetting = this.pageSettingMap.get(window.location.href);
 		document.querySelectorAll("a").forEach((element) => {
-			//hover mode
+
 			if (pageSetting?.mode ? pageSetting?.mode === 'hover' : this.setting.mode === 'hover') {
 				element.addEventListener('mouseover', (event: MouseEvent) => {
 					event.preventDefault();
@@ -224,7 +213,7 @@ export class ClientRouter {
 		window.history.forward();
 	}
 
-	/**
+/**
 	 * Should be called in _default.page.client render function.
 	 *
 	 */
@@ -233,7 +222,6 @@ export class ClientRouter {
 		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 
 		PrefetchSetting && this.setPagePrefetchRule(document.location.href, PrefetchSetting);
-		// console.log(document.location, this.pageSettingMap)
 
 
 		this.handleClientLinkBehavior();
@@ -243,11 +231,6 @@ export class ClientRouter {
 	}
 
 	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
-		// console.log(path);
-		// const href: string = new URL(
-		// 	element.getAttribute('href') || "",
-		// 	location.origin
-		// ).href;
 		this.pageSettingMap.get(path) || this.pageSettingMap.set(path, setting);
 	}
 }
