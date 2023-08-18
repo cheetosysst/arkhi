@@ -93,6 +93,5 @@ const walk = (node: Node | null) => {
 };
 
 export function renderIslands(node: Node) {
-	console.log(IslandMap);
 	walk(node);
 }
