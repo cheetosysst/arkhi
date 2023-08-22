@@ -1,6 +1,5 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-
 import { IslandMap } from "./island";
 
 const ISLAND_ATTRIBUTE_ID = "_island_id";
@@ -37,16 +36,20 @@ const explore = (parentNode: Node) => {
 			attributes.getNamedItem(ISLAND_ATTRIBUTE_ID)?.value;
 
 		if (islandString) {
-			const newAttr = new Map();
+			const oldAttr = new Map();
 			const temp: Record<string, string> = {};
 			for (let item of attributes) {
-				newAttr.set(item.name, item.value);
+				oldAttr.set(item.name, item.value);
 				temp[item.name] = item.value;
 			}
-			const [islandName, islandId] = islandString.split(":");
-			const IslandType = IslandMap.get(islandName);
+			// TODO Read PropsMap
+			const [islandID, propsID] = islandString.split(":");
+			const Component = IslandMap.get(islandID)!;
+
+			const newAttr = { ...oldAttr };
+
 			// @ts-ignore
-			siblings.push(<IslandType {...newAttr} />);
+			siblings.push(<Component {...newAttr} />);
 			currentNode = currentNode.nextSibling as Node;
 			continue;
 		}
