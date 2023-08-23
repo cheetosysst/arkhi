@@ -1,17 +1,23 @@
 import { Island } from "@/arkhi/client";
 import { api } from "@/arkhi/client/api";
-import React from "react";
+import React, { useRef, useState } from "react";
 import { PropsWithChildren } from "react";
 
-function Caller({ ...props }: PropsWithChildren) {
+export function Caller({ ...props }: PropsWithChildren) {
+	const inputRef = useRef<HTMLInputElement>(null);
+	const [message, setMessage] = useState<string>("<=click to say hello!");
 	const handler = () => {
-		console.log("clicked");
-		api.hello.hello.query("Matt").then((data) => console.log(data.message));
+		api.hello.hello
+			.query(inputRef.current?.value || "Nobody")
+			.then((data) => setMessage(data.message));
+		inputRef.current!.value = "";
 	};
 	return (
-		<button onClick={handler} {...props}>
-			call
-		</button>
+		<p {...props}>
+			<input ref={inputRef} />
+			<button onClick={handler}>call</button>
+			<span>{message}</span>
+		</p>
 	);
 }
 

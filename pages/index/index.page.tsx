@@ -17,7 +17,6 @@ function Page() {
 	return (
 		<>
 			<h1>Welcome</h1>
-			<CallerIsland />
 			<IslandColorChanger />
 			This page is:
 			<ul>
@@ -59,6 +58,7 @@ function Page() {
 					<br />
 				</li>
 			</ul>
+			<CallerIsland />
 		</>
 	);
 }
