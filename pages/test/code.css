@@ -4,3 +4,18 @@ code {
   padding: 3px 5px;
   border-radius: 4px;
 }
+
+.mdx-metadata {
+  background-color: lightgray;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mdx-metadata p {
+  flex: 1 1 50%;
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+}

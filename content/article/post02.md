@@ -1,9 +1,11 @@
-# This is a Test Article
+---
+title: Post 02 - Arkhi Tips and Tricks
+author: Chat-GPT
+tags: arkhi, tips, tricks
+description: Useful tips and tricks for efficient development with Arkhi.
+views: 8
+status: draft
+---
+# Post 02 - Arkhi Tips and Tricks
 
-Non et dolore magna aute enim deserunt mollit elit sit elit in nostrud. Pariatur ipsum consectetur veniam elit eiusmod labore nisi elit. Duis occaecat velit Lorem velit ullamco in Lorem quis adipisicing.
-
-## Voluptate cupidatat et magna nulla
-
-Ipsum nostrud cillum esse officia eiusmod sunt ad aliqua consequat voluptate ut. Lorem est aliqua minim cillum. Culpa culpa Lorem pariatur quis velit. Eiusmod cillum fugiat cupidatat labore do in cupidatat velit ad.
-
-Do duis ex voluptate duis aliqua in commodo voluptate. Duis enim qui dolore ad Lorem elit. Excepteur deserunt id duis ea deserunt pariatur incididunt exercitation excepteur occaecat excepteur incididunt ipsum aliquip. Consectetur ipsum pariatur esse nisi ad enim anim sint. Cupidatat qui irure non est velit. Irure id commodo reprehenderit officia laboris et nostrud. Deserunt dolor ut ea irure qui.
+Discover a collection of tips and tricks that can enhance your development workflow when using Arkhi.

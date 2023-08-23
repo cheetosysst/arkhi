@@ -1,21 +1,33 @@
-declare module 'virtual:contents' {
-    import { Content } from "./cms";
-    const contents: Content;
-    export default contents;
+interface MDXMetadata {
+    filePath: string;
+    fileName: string;
+    title: string;
+    author: string;
+    tags: string[];
+    description: string;
+    views: number;
+    status: string;
+    atime: Date;
+    mtime: Date;
+    ctime: Date;
+    createdAt: Date;
 }
-// declare module "virtual:island" {
-//     import { ComponentType } from "react";
-//     export type IslandProps = { _island_id: string };
-//     export const IslandMap: Map<string, ComponentType<any>>;
-//     export function Island<T extends object>(
-//         Component: ComponentType<T & IslandProps>
-//     ): ComponentType<T>;
-//     export function getComponentFromIslandMap(componentName: string): ComponentType<any>;
-// }
-// declare module "virtual:island" {
-//     import { ComponentType } from "react";
-//     import { IslandProps, Island } from "@/arkhi/client/island";
+type MDXFile = {
+    component: (props: PropsWithChildren<any>) => JSX.Element;
+    metadata: MDXMetadata;
+};
 
-//     export { IslandProps, IslandMap, Island };
-// }
+declare module "*.mdx" {
+    let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
+    export const metadata: MDXMetadata;
+    export const allFiles: MDXFile[];
+    export default MDXComponent;
+}
+
+declare module "*.md" {
+    let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
+    export const metadata: MDXMetadata;
+    export const allFiles: MDXFile[];
+    export default MDXComponent;
+}
 

@@ -1,145 +1,89 @@
-import { Plugin } from "vite";
-import { readdirSync, readFileSync, statSync } from "fs";
-import path from "path";
-const postExtensions = [".md", ".mdx"];
-
-//文章的metadata
-type ArticleConfig = {
-	title: string;
-	created: Date;
-	edited: Date;
-	author: string;
-	tags: string[];
-};
-
-type ContentNode = {
-	[key: string]: Content;
-};
-
-type Content = {
-	children: ContentNode;
-	path: string; //檔案路徑
-	name: string;
-	type: string; //檔案類型（副檔名）
-	assets: string[]; //檔案相關的資源
-	config?: ArticleConfig; //檔案的相關配置（如果有）
-};
-
-function parseConfig(directory: string): ArticleConfig | undefined {
-	const configPath = path.join(directory, "config.json");
-	try {
-		const configData = readFileSync(configPath, "utf-8");
-		const config = JSON.parse(configData);
-		// TODO Use zod to parse config
-		return config;
-	} catch (e) {
-		console.warn("Config not found on", directory);
-		return undefined;
-	}
+import { Plugin } from 'vite';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { compile } from '@mdx-js/mdx';
+import matter from 'gray-matter';
+let contentDirectoryPath: string
+export async function getFilesInDir(dirPath: string, ext: string[]): Promise<string[]> {
+	const entries = await fs.readdir(dirPath, { withFileTypes: true });
+	const files = await Promise.all(entries.map(async (entry) => {
+		const fullPath = path.join(dirPath, entry.name);
+		if (entry.isDirectory()) {
+			return getFilesInDir(fullPath, ext);
+		} else if (ext.includes(path.extname(entry.name))) {
+			return [fullPath];
+		}
+		return [];
+	}));
+	return files.flat();
 }
 
-//讀取資料夾，建立CMS資料內容
-function parseContents(directory: string): Content {
-	const files = readdirSync(directory);
-	const content: Content = {
-		children: {},
-		name: path.parse(directory).base,
-		path: "",
-		type: "",
-		assets: [],
-		config: undefined,
-	};
-
-	files.forEach((file) => {
-		const filePath = path.join(directory, file);
-		const fileStat = statSync(filePath);
-
-		// Check directory first, in case a direcory is named like a file.
-		if (fileStat.isDirectory()) {
-			content.children[file] = parseContents(filePath);
-			return;
-		}
-
-		if (file === "config.json") {
-			content.config = parseConfig(directory);
-			return;
-		}
-
-		const pathInfo = path.parse(file);
-		const isContent = postExtensions.includes(pathInfo.ext);
-
-		if (pathInfo.name === "index" && isContent) {
-			content.name = path.parse(directory).base;
-			content.path = filePath;
-			content.type = pathInfo.ext;
-			return;
-		}
-
-		if (isContent) {
-			content.children[file] = {
-				children: {},
-				name: pathInfo.name,
-				path: filePath,
-				type: pathInfo.ext,
-				assets: [],
-				config: undefined,
-			};
-			return;
-		}
-
-		content.assets.push(filePath);
-	});
-
-	return content;
-}
-
-export function compileMetadata(): Content {
-	const contentDirectory = path.join(process.cwd(), "/content");
-	const contentSystem = parseContents(contentDirectory);
-	return contentSystem;
-}
-
-function arkhiCMS(): Plugin {
-	let contents = {
-		root: compileMetadata()
-	};
+export default function arkhiCMS(): Plugin {
 	return {
-		name: "vite-plugin-arkhi-cms",
-
-		configureServer(server) {
-			// 提供API端點供前端訪問CMS內容
-			server.middlewares.use('/contents', (req, res, next) => {
-				res.writeHead(200, { 'Content-Type': 'application/json' });
-				res.end(JSON.stringify(contents.root));
-			});
-		},
-		resolveId(id) {
-			if (id === 'virtual:contents') return id;
-		},
-
-		load(id) {
-			if (id === 'virtual:contents') {
-				const jsonString = JSON.stringify(contents.root);
-				return `export default ${jsonString}`;
+		name: 'vite-mdx-plugin',
+		async resolveId(source) {
+			if (source.endsWith('*.md')) {
+				const resolvedId = source.replace('*.md', '@virtual-mdx-files');
+				return resolvedId;
 			}
 		},
-		handleHotUpdate({ file, server }) {
-			if (file.includes('/content/')) {
-				contents.root = compileMetadata(); // 更新 contents.root
-				const mod = server.moduleGraph.getModuleById('virtual:contents');
-				if (mod) {
-					server.moduleGraph.invalidateModule(mod); // 無效化該模塊，使模塊path指向的文件reload
-					mod.importers.forEach((importer) => {
-						server.moduleGraph.invalidateModule(importer);
-					});
+		async load(id) {
+			if (id.includes('@virtual-mdx-files')) {
+				const actualPath = id.replace('@virtual-mdx-files', '');
+				let absolutePath = path.join(__dirname, actualPath);
+				if (actualPath.startsWith('/content/')) {
+					absolutePath = contentDirectoryPath
+				} else {
+					contentDirectoryPath = absolutePath
 				}
+				const mdFiles = await getFilesInDir(absolutePath, ['.md', '.mdx']);
+				const imports = mdFiles.map((filePath, index) => {
+					const relativePath = path.relative(path.dirname(id), filePath).replace(/\\/g, '/');
+					return `import * as File${index} from '${relativePath}';`;
+				}).join('\n');
+				const fileObjects = mdFiles.map((_, index) => {
+					return `{ 
+						component: File${index}.default, 
+						metadata: File${index}.metadata 
+					}`;
+				}).join(', ');
+
+				const exports = `export const allFiles = [${fileObjects}];`;
+				return `${imports}\n${exports}`;
+			}
+		},
+		async transform(code, id) {
+			if (id.endsWith('.md') || id.endsWith('.mdx')) {
+				const fileStats = await fs.stat(id);
+				const { data, content } = matter(code);
+				const metadata = {
+					filePath: id,
+					fileName: path.basename(id),
+					title: data.title,
+					author: data.author,
+					tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : [],
+					description: data.description,
+					views: data.views,
+					status: data.status,
+					atime: fileStats.atime,
+					mtime: fileStats.mtime,
+					ctime: fileStats.ctime,
+					createdAt: fileStats.birthtime,
+				};
+				const result = await compile(content, {
+					remarkPlugins: [],
+					rehypePlugins: [],
+					recmaPlugins: [],
+					mdExtensions: ['.md', '.markdown', '.mdown', '.mkdn', '.mkd', '.mdwn', '.mkdown', '.ron'],
+					mdxExtensions: ['.mdx'],
+					format: 'detect',
+					outputFormat: 'program',
+					jsxRuntime: 'automatic',
+					jsxImportSource: 'react'
+				});
+				const exportMetadata = `export const metadata = ${JSON.stringify(metadata)};`;
+				return result + '\n' + exportMetadata;
 			}
 		},
 	};
 }
-
-export const contents = {
-	root: compileMetadata()
-};
-export { arkhiCMS };
-export type { Content, ContentNode, ArticleConfig };
