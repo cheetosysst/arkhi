@@ -1,5 +1,6 @@
 import type { AppRouters } from "@/api";
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import superjson from "superjson";
 
 /**
  * Checks current enviroment and returns current base URL.
@@ -17,6 +18,7 @@ const getBaseUrl = () => {
  * Info: https://trpc.io/docs/client/nextjs/server-side-helpers#2-external-router
  */
 export const api = createTRPCProxyClient<AppRouters>({
+	transformer: superjson,
 	links: [
 		httpBatchLink({
 			url: `${getBaseUrl()}/trpc`,

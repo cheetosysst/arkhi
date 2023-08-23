@@ -1,8 +1,10 @@
 import { initTRPC } from "@trpc/server";
 import { TRPCContext } from "./context";
-// import SuperJSON from "superjson";
+import superjson from "superjson";
 
-const t = initTRPC.context<TRPCContext>().create();
+const t = initTRPC.context<TRPCContext>().create({
+	transformer: superjson,
+});
 
 /**
  * You can add authentication-required procedures here.
