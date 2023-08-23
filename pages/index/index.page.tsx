@@ -1,55 +1,61 @@
 import React, { FC } from "react";
 import Counter from "./Counter";
 import Accumulator from "./Accumulator";
-import { ColorChanger } from "../about/Component";
-import { api } from "@/arkhi/client/api";
 import CallerIsland from "./Caller";
+
+import { Island } from "@/arkhi/client";
+import { ColorChanger } from "../about/Component";
+
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
+
+const IslandCounter = Island("index", Counter);
+const IslandAccumulator = Island("index", Accumulator);
+const IslandColorChanger = Island("index", ColorChanger);
 
 function Page() {
 	return (
 		<>
 			<h1>Welcome</h1>
-			<ColorChanger />
 			<CallerIsland />
+			<IslandColorChanger />
 			This page is:
 			<ul>
 				<li>Rendered to HTML.</li>
 				<li>
-					Non-Interactive. <Counter />
+					Non-Interactive. <IslandCounter />
 					<br />
-					Interactive. <Counter />
+					Interactive. <IslandCounter />
 					<br />
-					Interactive. <Counter />
-					<br />
-				</li>
-				<li>
-					Non-Interactive. <Counter />
-					<br />
-					Interactive. <Counter />
-					<br />
-					Interactive. <Counter />
+					Interactive. <IslandCounter />
 					<br />
 				</li>
 				<li>
-					Non-Interactive. <Accumulator />
+					Non-Interactive. <IslandCounter />
 					<br />
-					Interactive. <Accumulator />
+					Interactive. <IslandCounter />
 					<br />
-					Interactive. <Accumulator />
+					Interactive. <IslandCounter />
 					<br />
 				</li>
 				<li>
-					Non-Interactive. <Accumulator />
+					Non-Interactive. <IslandAccumulator />
+					<br />
+					Interactive. <IslandAccumulator />
+					<br />
+					Interactive. <IslandAccumulator />
+					<br />
+				</li>
+				<li>
+					Non-Interactive. <IslandAccumulator />
 					<br />
 					<div>
-						Interactive. <Accumulator />
+						Interactive. <IslandAccumulator />
 						<br />
 					</div>
-					Interactive. <Accumulator />
+					Interactive. <IslandAccumulator />
 					<br />
-					Interactive. <Accumulator />
+					Interactive. <IslandAccumulator />
 					<br />
 				</li>
 			</ul>

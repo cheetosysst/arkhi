@@ -1,5 +1,5 @@
 import React from "react";
-import { ReverseCounter, Adder } from './Component';
+import { ReverseCounter, Adder } from "./Component";
 // import './code.css'
 
 export { Page };
