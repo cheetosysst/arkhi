@@ -1,7 +1,6 @@
-import { Island } from "@/arkhi/client";
 import React, { useState } from "react";
 
-function Accumulator_({ ...props }) {
+function Accumulator({ ...props }) {
 	const [count, setCount] = useState(0);
 	return (
 		<button
@@ -14,5 +13,4 @@ function Accumulator_({ ...props }) {
 	);
 }
 
-const Accumulator = Island(Accumulator_);
 export default Accumulator;

@@ -6,7 +6,7 @@ import Index from '../../content/index.md'
 import MdxContentRenderer from './MdxContentRenderer'
 import "./code.css";
 export { Page };
-
+export const PrefetchSetting = { mode: 'hover' };
 function Page() {
 	return (
 		<>
