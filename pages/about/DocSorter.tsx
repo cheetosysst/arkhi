@@ -101,5 +101,5 @@ function DocSorter_({ ...props }) {
     );
 }
 
-const DocSorter = Island(DocSorter_);
+const DocSorter = Island("doc", DocSorter_);
 export default DocSorter

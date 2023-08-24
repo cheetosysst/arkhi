@@ -50,5 +50,5 @@ function MdxContentRenderer_({ ...props }) {
     );
 }
 
-const MdxContentRenderer = Island(MdxContentRenderer_);
+const MdxContentRenderer = Island("mdx", MdxContentRenderer_);
 export default MdxContentRenderer;
