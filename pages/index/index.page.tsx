@@ -1,6 +1,8 @@
 import React, { FC } from "react";
 import Counter from "./Counter";
 import Accumulator from "./Accumulator";
+import CallerIsland from "./Caller";
+
 import { Island } from "@/arkhi/client";
 import { ColorChanger } from "../about/Component";
 
@@ -56,6 +58,7 @@ function Page() {
 					<br />
 				</li>
 			</ul>
+			<CallerIsland />
 		</>
 	);
 }
