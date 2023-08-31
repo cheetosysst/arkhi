@@ -54,10 +54,26 @@ const explore = (parentNode: Node) => {
 			continue;
 		}
 
+		
+		const newAttr: { [key: string]: string } = {}; 
+		// Iterate through attributes and populate the attributes namedNodeMap
+		for (let i = 0; i < attributes.length; i++) {
+			const attribute = attributes.item(i);
+			if (attribute) {
+				const reactAttributeName = attribute.name
+					.replace(/[-:]/g, '') // Remove hyphens and colons
+					.replace(/class/g, 'className') // Convert 'class' to 'className'
+					.replace(/for/g, 'htmlFor'); // Convert 'for' to 'htmlFor'
+
+				newAttr[reactAttributeName] = attribute.value;
+			}
+		}
+
+
 		const childTree = explore(currentNode);
 		const component = React.createElement(
 			currentNode.nodeName.toLowerCase(),
-			attributes,
+			newAttr,
 			childTree
 		);
 
