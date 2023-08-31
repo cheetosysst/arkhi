@@ -5,8 +5,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { UserConfig } from "vite";
 
 const config: UserConfig = {
-	plugins: [react(), ssr(), tsconfigPaths(), arkhiPlugin(),
-	],
+	plugins: [react(), ssr(), tsconfigPaths(), arkhiPlugin()],
+	esbuild: {
+		minifyIdentifiers: false,
+	},
 };
 
 export default config;
