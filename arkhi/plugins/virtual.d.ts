@@ -5,7 +5,7 @@ interface MDXMetadata {
     author: string;
     tags: string[];
     description: string;
-    views: number;
+    readTime: number;
     status: string;
     atime: Date;
     mtime: Date;
@@ -20,11 +20,18 @@ type MDXFile = {
 declare module "*.mdx" {
     let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
     export const metadata: MDXMetadata;
-    export const allFiles: MDXFile[];
+    export const allFiles: MDXFile;
     export default MDXComponent;
 }
 
 declare module "*.md" {
+    let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
+    export const metadata: MDXMetadata;
+    export const allFiles: MDXFile[];
+    export default MDXComponent;
+}
+
+declare module "*" {
     let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
     export const metadata: MDXMetadata;
     export const allFiles: MDXFile[];

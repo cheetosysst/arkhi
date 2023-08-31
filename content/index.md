@@ -3,7 +3,6 @@ title: Welcome to Arkhi Documentation
 author: Chat-GPT
 tags: arkhi, docs, guide
 description: The main documentation page for Arkhi.
-views: 20
 status: public
 ---
 # Welcome to Arkhi Documentation

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Island } from "@/arkhi/client";
-import { allFiles as allMdxFiles } from '../../content/article/*.md';
+import { allFiles as allMdxFiles } from '../../content/*';
 
 function MdxContentRenderer_({ ...props }) {
     const [selectedTag, setSelectedTag] = useState("");
@@ -21,33 +21,21 @@ function MdxContentRenderer_({ ...props }) {
     return (
         <div {...props}>
             <label>Select Tag: </label>
-            <select value={selectedTag} onChange={(e) => setSelectedTag(e.target.value)}>
-                <option value="">All</option>
+            <select value={selectedTag} onChange={(e) => setSelectedTag(e.target.value)} >
                 {allTags.map(tag => (
                     <option key={tag} value={tag}>{tag}</option>
                 ))}
             </select>
-
             {displayFiles.map((file, index) => (
-                <div key={index}>
+                <div key={index} >
                     <file.component />
                     <div className="mdx-metadata">
-                        <p>Author: {file.metadata.author}</p>
-                        <p>File Path: {file.metadata.filePath}</p>
-                        <p>File Name: {file.metadata.fileName}</p>
-                        <p>Tags: {file.metadata.tags.join(', ')}</p>
-                        <p>Description: {file.metadata.description}</p>
-                        <p>Views: {file.metadata.views}</p>
-                        <p>Status: {file.metadata.status}</p>
-                        <p>Last Accessed: {new Date(file.metadata.atime).toLocaleDateString()}</p>
-                        <p>Last Modified: {new Date(file.metadata.mtime).toLocaleDateString()}</p>
-                        <p>Creation Time: {new Date(file.metadata.ctime).toLocaleDateString()}</p>
-                        <p>Created At: {new Date(file.metadata.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
             ))}
         </div>
     );
+
 }
 
 const MdxContentRenderer = Island("mdx", MdxContentRenderer_);
