@@ -40,7 +40,7 @@ async function render(pageContext: PageContextServer) {
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
 			PrefetchSetting || ""
 		)}></div>
-		<div id="arkhiProps" data-setting = ${
+		<div id="arkhi-props" data-setting = ${
 			SuperJSON.stringify(Object.fromEntries(IslandProps)) || ""
 		}></div>
       </body>

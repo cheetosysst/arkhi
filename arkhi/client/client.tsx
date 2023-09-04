@@ -103,7 +103,7 @@ const walk = (node: Node | null) => {
 export function renderIslands(node: Node) {
 	propsMap = superjson.parse(
 		document
-			.getElementById("arkhiProps")
+			.getElementById("arkhi-props")
 			?.attributes.getNamedItem("data-setting")?.value || "{}"
 	);
 	walk(node);
