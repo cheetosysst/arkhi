@@ -21,6 +21,7 @@ async function render(pageContext: PageContextServer) {
 
 	// See https://vite-plugin-ssr.com/head
 	const { documentProps, PrefetchSetting } = pageContext.exports;
+	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
 	const title = (documentProps && documentProps.title) || "Vite SSR app";
 	const desc =
 		(documentProps && documentProps.description) ||
@@ -40,9 +41,9 @@ async function render(pageContext: PageContextServer) {
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
 			PrefetchSetting || ""
 		)}></div>
-		<div id="arkhi-props" data-setting = ${
-			SuperJSON.stringify(Object.fromEntries(IslandProps)) || ""
-		}></div>
+		<script>
+			var propString = '${dangerouslySkipEscape(propString || "")}'
+		</script>
       </body>
     </html>`;
 

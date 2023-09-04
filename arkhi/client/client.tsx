@@ -3,6 +3,12 @@ import React from "react";
 import { IslandMap } from "./island";
 import superjson from "superjson";
 
+declare global {
+	interface Window {
+		propString: string;
+	}
+}
+
 const ISLAND_ATTRIBUTE_ID = "_island_id";
 
 let propsMap: { [id: string]: unknown } = {};
@@ -101,10 +107,6 @@ const walk = (node: Node | null) => {
 };
 
 export function renderIslands(node: Node) {
-	propsMap = superjson.parse(
-		document
-			.getElementById("arkhi-props")
-			?.attributes.getNamedItem("data-setting")?.value || "{}"
-	);
+	propsMap = superjson.parse(window.propString || "{}");
 	walk(node);
 }
