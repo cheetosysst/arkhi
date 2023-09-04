@@ -5,6 +5,7 @@ import { escapeInject, dangerouslySkipEscape } from "vite-plugin-ssr";
 import logoUrl from "./logo.svg";
 import type { PageContextServer } from "./types";
 import { IslandMap, IslandProps } from "@/arkhi/client";
+import SuperJSON from "superjson";
 
 export { render };
 // See https://vite-plugin-ssr.com/data-fetching
@@ -40,7 +41,7 @@ async function render(pageContext: PageContextServer) {
 			PrefetchSetting || ""
 		)}></div>
 		<div id="arkhiProps" data-setting = ${
-			JSON.stringify(Object.fromEntries(IslandProps)) || ""
+			SuperJSON.stringify(Object.fromEntries(IslandProps)) || ""
 		}></div>
       </body>
     </html>`;

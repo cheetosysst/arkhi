@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-import { IslandMap, IslandProps } from "./island";
+import { IslandMap } from "./island";
+import superjson from "superjson";
 
 const ISLAND_ATTRIBUTE_ID = "_island_id";
 
@@ -100,7 +101,7 @@ const walk = (node: Node | null) => {
 };
 
 export function renderIslands(node: Node) {
-	propsMap = JSON.parse(
+	propsMap = superjson.parse(
 		document
 			.getElementById("arkhiProps")
 			?.attributes.getNamedItem("data-setting")?.value || "{}"
