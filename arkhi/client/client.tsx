@@ -11,7 +11,16 @@ const populate = (parent: Element, component: JSX.Element) => {
 	});
 };
 
+const attributesMap = (attributes: NamedNodeMap) => {
+	const map = new Map<string, string>();
+	for (const item of attributes) {
+		map.set(item.name, item.value);
+	}
+	return map;
+};
+
 const explore = (parentNode: Node) => {
+	console.log(parentNode.nodeName);
 	const siblings: JSX.Element[] = [];
 	let currentNode = parentNode.firstChild as Node;
 
@@ -31,35 +40,31 @@ const explore = (parentNode: Node) => {
 			continue;
 		}
 
-		const attributes = (currentNode as Element).attributes;
-		const islandString =
-			attributes.getNamedItem(ISLAND_ATTRIBUTE_ID)?.value;
+		const attributes = attributesMap((currentNode as Element).attributes);
+		const islandString = attributes.get(ISLAND_ATTRIBUTE_ID);
 
 		if (islandString) {
-			const oldAttr = new Map();
-			const temp: Record<string, string> = {};
-			for (let item of attributes) {
-				oldAttr.set(item.name, item.value);
-				temp[item.name] = item.value;
-			}
 			// TODO Read PropsMap
 			const [islandID, propsID] = islandString.split(":");
 			const Component = IslandMap.get(islandID)!;
 
-			const newAttr = { ...oldAttr };
-
 			// @ts-ignore
-			siblings.push(<Component {...newAttr} />);
+			siblings.push(<Component {...attributes} />);
 			currentNode = currentNode.nextSibling as Node;
 			continue;
 		}
 
 		const childTree = explore(currentNode);
-		const component = React.createElement(
-			currentNode.nodeName.toLowerCase(),
-			attributes,
-			childTree
-		);
+		const component = childTree.props.children.length
+			? React.createElement(
+					currentNode.nodeName.toLowerCase(),
+					Object.fromEntries(attributes),
+					childTree
+			  )
+			: React.createElement(
+					currentNode.nodeName.toLowerCase(),
+					Object.fromEntries(attributes)
+			  );
 
 		siblings.push(component);
 		currentNode = currentNode.nextSibling as Node;
