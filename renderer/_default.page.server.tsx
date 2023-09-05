@@ -2,7 +2,7 @@ import ReactDOMServer from "react-dom/server";
 import React from "react";
 import { PageShell } from "./PageShell";
 import { escapeInject, dangerouslySkipEscape } from "vite-plugin-ssr";
-import logoUrl from "./logo.svg";
+import logoUrl from "/logo.svg";
 import type { PageContextServer } from "./types";
 import { IslandMap, IslandProps } from "@/arkhi/client";
 import SuperJSON from "superjson";
@@ -39,11 +39,11 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-			PrefetchSetting || ""
-		)}></div>
-		<script>
-			var propString = '${dangerouslySkipEscape(propString || "")}'
-		</script>
+          PrefetchSetting || ""
+        )}></div>
+        <script>
+          var propString = '${dangerouslySkipEscape(propString || "")}'
+        </script>
       </body>
     </html>`;
 
