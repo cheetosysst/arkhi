@@ -4,8 +4,6 @@ import path from 'path';
 import { compile } from '@mdx-js/mdx';
 import matter from 'gray-matter';
 
-let contentDirectoryPath: string //儲存content目錄相對位置
-
 // 從dirPath指向的檔案夾下獲取所有具有ext擴展名的文檔，返回儲存所有文檔絕對路徑的array
 export async function getFilesInDir(dirPath: string, ext: string[]): Promise<string[]> {
 	const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -14,7 +12,7 @@ export async function getFilesInDir(dirPath: string, ext: string[]): Promise<str
 		if (entry.isDirectory()) {
 			return getFilesInDir(fullPath, ext);
 		} else if (ext.includes(path.extname(entry.name))) {
-			return [fullPath];
+			return fullPath;
 		}
 		return [];
 	}));
@@ -25,10 +23,8 @@ export async function getFilesInDir(dirPath: string, ext: string[]): Promise<str
 async function generateModuleContent(id: string, fileTypes: string[], virtualId: string) {
 	const actualPath = id.replace(virtualId, '');
 	let absolutePath = path.join(__dirname, actualPath);
-	if (actualPath.startsWith('/content/')) {
-		absolutePath = contentDirectoryPath;
-	} else {
-		contentDirectoryPath = absolutePath;
+	if (__dirname.endsWith('plugins')) {
+		absolutePath = absolutePath.replace('\\arkhi\\plugins\\', '\\');
 	}
 	const mdFiles = await getFilesInDir(absolutePath, fileTypes);
 	// 生成文件的import，將文件內容引入
@@ -103,7 +99,7 @@ export default function arkhiCMS(): Plugin {
 				const resolvedId = source.replace('*.mdx', '@virtual-mdx-files');
 				return resolvedId;
 			}
-			else if (source.endsWith('*')) {
+			else {
 				const resolvedId = source.replace('*', '@virtual-files');
 				return resolvedId;
 			}
