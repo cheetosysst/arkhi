@@ -9,6 +9,7 @@
     "server:prod": "cross-env NODE_ENV=production ts-node ./arkhi/index.ts"
   },
   "dependencies": {
+    "@mdx-js/mdx": "^2.3.0",
     "@trpc/client": "^10.37.1",
     "@trpc/server": "^10.37.1",
     "@types/compression": "^1.7.2",
@@ -20,6 +21,7 @@
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
     "express": "^4.18.1",
+    "gray-matter": "^4.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sirv": "^2.0.2",

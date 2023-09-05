@@ -92,7 +92,7 @@ function Logo() {
 			}}
 		>
 			<a href="/">
-				<img src={logo} height={64} width={64} alt="logo" />
+				<img src={'/logo.svg'} height={64} width={64} alt="logo" />
 			</a>
 		</div>
 	);

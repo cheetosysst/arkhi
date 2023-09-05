@@ -4,3 +4,48 @@ code {
   padding: 3px 5px;
   border-radius: 4px;
 }
+
+.card {
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+  margin-bottom: 16px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 100%;
+  margin: 16px auto;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0);
+}
+
+.metadata {
+  display: flex;
+  flex-direction: column;
+}
+
+.metadata .title {
+  font-size: 1.25em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.metadata .author,
+.metadata .views,
+.metadata .lastAccessed {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.metadata .lastAccessed {
+  align-self: flex-end;
+}
+
+.metadata .author,
+.metadata .views {
+  align-self: flex-start;
+}
