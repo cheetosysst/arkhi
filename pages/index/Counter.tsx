@@ -8,7 +8,7 @@ function Counter({ temp, ...props }: { temp?: string }) {
 			{...props}
 			onClick={() => setCount((count) => count + 1)}
 		>
-			Counter {count}
+			{temp ?? "Counter"} {count}
 		</button>
 	);
 }

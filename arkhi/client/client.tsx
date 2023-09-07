@@ -1,8 +1,17 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 import { IslandMap } from "./island";
+import superjson from "superjson";
+
+declare global {
+	interface Window {
+		propString: string;
+	}
+}
 
 const ISLAND_ATTRIBUTE_ID = "_island_id";
+
+let propsMap: { [id: string]: unknown } = {};
 
 const populate = (parent: Element, component: JSX.Element) => {
 	requestIdleCallback(() => {
@@ -20,7 +29,6 @@ const attributesMap = (attributes: NamedNodeMap) => {
 };
 
 const explore = (parentNode: Node) => {
-	console.log(parentNode.nodeName);
 	const siblings: JSX.Element[] = [];
 	let currentNode = parentNode.firstChild as Node;
 
@@ -47,9 +55,10 @@ const explore = (parentNode: Node) => {
 			// TODO Read PropsMap
 			const [islandID, propsID] = islandString.split(":");
 			const Component = IslandMap.get(islandID)!;
+			const props = propsMap[propsID];
 
 			// @ts-ignore
-			siblings.push(<Component {...attributes} />);
+			siblings.push(<Component {...attributes} {...props} />);
 			currentNode = currentNode.nextSibling as Node;
 			continue;
 		}
@@ -98,5 +107,6 @@ const walk = (node: Node | null) => {
 };
 
 export function renderIslands(node: Node) {
+	propsMap = superjson.parse(window.propString || "{}");
 	walk(node);
 }
