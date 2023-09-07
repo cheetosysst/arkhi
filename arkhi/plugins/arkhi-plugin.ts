@@ -1,10 +1,6 @@
-import { Plugin } from 'vite';
-import arkhiCMS from './cms';
-import { arkhiCleanExports } from './clean-export';
+import { Plugin } from "vite";
+import arkhiCMS from "./cms";
 
 export function arkhiPlugin(): Plugin[] {
-    return [
-        arkhiCMS(),
-        //arkhiCleanExports()
-    ];
+	return [arkhiCMS()];
 }
