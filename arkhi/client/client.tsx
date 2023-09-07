@@ -52,7 +52,6 @@ const explore = (parentNode: Node) => {
 		const islandString = attributes.get(ISLAND_ATTRIBUTE_ID);
 
 		if (islandString) {
-			// TODO Read PropsMap
 			const [islandID, propsID] = islandString.split(":");
 			const Component = IslandMap.get(islandID)!;
 			const props = propsMap[propsID];
