@@ -24,7 +24,8 @@ async function generateModuleContent(id: string, fileTypes: string[], virtualId:
 	const actualPath = id.replace(virtualId, '');
 	let absolutePath = path.join(__dirname, actualPath);
 	if (__dirname.endsWith('plugins')) {
-		absolutePath = absolutePath.replace('\\arkhi\\plugins\\', '\\');
+		const arkhiPluginsPath = ['arkhi', 'plugins'].join(path.sep);
+		absolutePath = absolutePath.replace(arkhiPluginsPath, path.sep);
 	}
 	const mdFiles = await getFilesInDir(absolutePath, fileTypes);
 	// 生成文件的import，將文件內容引入
@@ -99,7 +100,7 @@ export default function arkhiCMS(): Plugin {
 				const resolvedId = source.replace('*.mdx', '@virtual-mdx-files');
 				return resolvedId;
 			}
-			else {
+			else if (source.endsWith('*')) {
 				const resolvedId = source.replace('*', '@virtual-files');
 				return resolvedId;
 			}
