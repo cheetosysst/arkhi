@@ -1,12 +1,17 @@
 // import { renderIslands, ClientRouter } from "../arkhi/index";
 import { renderIslands, ClientRouter } from "@/arkhi/client";
 
-//@ts-ignore
-window.clientRouter ||= new ClientRouter(render, { mode: 'visible' });
-//@ts-ignore
-const clientRouter = window.clientRouter;
+declare global {
+	interface Window {
+		clientRouter: ClientRouter | undefined;
+	}
+}
+
+window.clientRouter ||= new ClientRouter(render, { mode: "visible" });
+
 function render() {
-	clientRouter.beforeRender();
+	const clientRouter = window.clientRouter;
+	if (clientRouter !== undefined) clientRouter.beforeRender();
 	renderIslands(document.body);
 }
 
