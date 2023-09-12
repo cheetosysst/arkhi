@@ -18,7 +18,7 @@ export class ClientRouter {
 		PrefetchSetting
 	>();
 	public setting: PrefetchSetting = { mode: "visible" };
-	private observer: IntersectionObserver; // TODO fix this type error
+	private observer: IntersectionObserver = new IntersectionObserver(this.observerCallback);
 	private render: Function;
 
 	constructor(render: Function, setting: PrefetchSetting) {
@@ -34,6 +34,25 @@ export class ClientRouter {
 	private getPath: any = (url: string | null | undefined): string => {
 		return new URL(url || "", location.origin).pathname;
 	};
+
+	private observerCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
+		entries.forEach(async (entry: IntersectionObserverEntry) => {
+			const path = this.getPath(
+				entry.target.getAttribute("href")
+			);
+
+			if (this.prefetched.has(path)) {
+				observer.unobserve(entry.target);
+				return;
+			}
+
+			if (entry.isIntersecting) {
+				this.prefetched.add(path);
+				await vitePrefech(path);
+				observer.unobserve(entry.target);
+			}
+		});
+	}
 
 	public async prefetchHover(element: HTMLAnchorElement): Promise<Boolean> {
 		const path = this.getPath(element.getAttribute("href"));
@@ -55,24 +74,7 @@ export class ClientRouter {
 
 		if ("IntersectionObserver" in window === false) return;
 		this.observer ||
-			(this.observer = new IntersectionObserver((entries, observer) => {
-				entries.forEach(async (entry) => {
-					const path = this.getPath(
-						entry.target.getAttribute("href")
-					);
-
-					if (this.prefetched.has(path)) {
-						observer.unobserve(entry.target);
-						return;
-					}
-
-					if (entry.isIntersecting) {
-						this.prefetched.add(path);
-						await vitePrefech(path);
-						observer.unobserve(entry.target);
-					}
-				});
-			}));
+			(this.observer = new IntersectionObserver(this.observerCallback));
 
 		Array.from(document.querySelectorAll("a"))
 			.filter((element) => {

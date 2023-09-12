@@ -20,10 +20,26 @@ const populate = (parent: Element, component: JSX.Element) => {
 	});
 };
 
+const stringToStyle = (styleString: string): Map<string, any> => {
+	const styleArray = styleString.split(';').filter(Boolean); // Split the string by semicolon and remove empty elements
+	const styleObject = new Map<string, any>();
+
+	for (const style of styleArray) {
+		const [property, value] = style.split(':').map((str) => str.trim()); // Split each property-value pair
+		styleObject.set(property,value); // Use type assertion as any
+	}
+
+	return styleObject;
+};
+
 const attributesMap = (attributes: NamedNodeMap) => {
-	const map = new Map<string, string>();
+	const map = new Map<string, any>();
 	for (const item of attributes) {
-		map.set(item.name, item.value);
+		let value: any = item.value;
+		if(item.name === 'style'){
+			value = stringToStyle(item.value);
+		}
+		map.set(item.name, value);
 	}
 	return map;
 };
