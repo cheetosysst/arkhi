@@ -20,23 +20,27 @@ const populate = (parent: Element, component: JSX.Element) => {
 	});
 };
 
-const stringToStyle = (styleString: string): Map<string, any> => {
+const kebabToCamel = (str: string) => {
+	return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+};
+
+const stringToStyle = (styleString: string): Record<string, string> => {
 	const styleArray = styleString.split(';').filter(Boolean); // Split the string by semicolon and remove empty elements
 	const styleObject = new Map<string, any>();
 
 	for (const style of styleArray) {
 		const [property, value] = style.split(':').map((str) => str.trim()); // Split each property-value pair
-		styleObject.set(property,value); // Use type assertion as any
+		styleObject.set(kebabToCamel(property), value); // Use type assertion as any
 	}
 
-	return styleObject;
+	return Object.fromEntries(styleObject);
 };
 
 const attributesMap = (attributes: NamedNodeMap) => {
 	const map = new Map<string, any>();
 	for (const item of attributes) {
 		let value: any = item.value;
-		if(item.name === 'style'){
+		if (item.name === 'style') {
 			value = stringToStyle(item.value);
 		}
 		map.set(item.name, value);
@@ -81,14 +85,14 @@ const explore = (parentNode: Node) => {
 		const childTree = explore(currentNode);
 		const component = childTree.props.children.length
 			? React.createElement(
-					currentNode.nodeName.toLowerCase(),
-					Object.fromEntries(attributes),
-					childTree
-			  )
+				currentNode.nodeName.toLowerCase(),
+				Object.fromEntries(attributes),
+				childTree
+			)
 			: React.createElement(
-					currentNode.nodeName.toLowerCase(),
-					Object.fromEntries(attributes)
-			  );
+				currentNode.nodeName.toLowerCase(),
+				Object.fromEntries(attributes)
+			);
 
 		siblings.push(component);
 		currentNode = currentNode.nextSibling as Node;

@@ -11,10 +11,10 @@ declare global {
 type PrefetchMode = "hover" | "visible" | "page" | "nested";
 type PrefetchSetting = { mode?: PrefetchMode };
 export class ClientRouter {
-	private prefetched: Set<String> = new Set<String>();
+	private prefetched: Set<string> = new Set<string>();
 
-	public pageSettingMap: Map<String, PrefetchSetting> = new Map<
-		String,
+	public pageSettingMap: Map<string, PrefetchSetting> = new Map<
+		string,
 		PrefetchSetting
 	>();
 	public setting: PrefetchSetting = { mode: "visible" };
@@ -31,23 +31,24 @@ export class ClientRouter {
 		}
 	}
 
-	private getPath: any = (url: string | null | undefined): string => {
+	private getPath(url: string | null | undefined) {
 		return new URL(url || "", location.origin).pathname;
 	};
 
 	private observerCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
+		const clientRouter = import.meta.env.SSR ? this : window.clientRouter;
 		entries.forEach(async (entry: IntersectionObserverEntry) => {
-			const path = this.getPath(
+			const path = clientRouter.getPath(
 				entry.target.getAttribute("href")
 			);
 
-			if (this.prefetched.has(path)) {
+			if (clientRouter.prefetched.has(path)) {
 				observer.unobserve(entry.target);
 				return;
 			}
 
 			if (entry.isIntersecting) {
-				this.prefetched.add(path);
+				clientRouter.prefetched.add(path);
 				await vitePrefech(path);
 				observer.unobserve(entry.target);
 			}
@@ -219,7 +220,7 @@ export class ClientRouter {
 		this.prefetchNested(document, 0);
 	}
 
-	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
+	public setPagePrefetchRule(path: string, setting: PrefetchSetting): void {
 		path = this.getPath(path);
 		this.pageSettingMap.get(path) || this.pageSettingMap.set(path, setting);
 	}
