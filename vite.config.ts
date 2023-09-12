@@ -7,7 +7,7 @@ import { UserConfig } from "vite";
 const config: UserConfig = {
 	plugins: [react(), ssr(), tsconfigPaths(), arkhiPlugin()],
 	esbuild: {
-		minifyIdentifiers: false,
+		keepNames: true,
 	},
 };
 
