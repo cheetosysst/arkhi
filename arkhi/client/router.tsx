@@ -1,4 +1,6 @@
 import { prefetch as vitePrefech } from 'vite-plugin-ssr/client/router'
+import { Island } from "./island";
+import React, { ReactNode, MouseEvent } from 'react';
 
 type PrefetchMode = 'hover' | 'visible' | 'page' | 'nested';
 type PrefetchSetting = { mode?: PrefetchMode };
@@ -21,58 +23,41 @@ export class ClientRouter {
 		}
 	}
 
-	private createLink: any = (url: string): void => {
-		// //create link for prefatch
-		// const linkElement = document.createElement("link");
-		// linkElement.rel = "prefetch";
-		// linkElement.href = url;
-		// linkElement.as = "document";
-
-		// linkElement.onerror = (err) =>
-		// 	console.error("prefetched error", url, err);
-
-		// document.head.appendChild(linkElement);
-
-		const href = new URL(url, location.origin).href;
-		this.prefetched.add(href);
+	private getPath: any = (url: string | null | undefined): string => {
+		return new URL(url || '', location.origin).pathname;
 	};
 
-	private async prefetchHover(element: HTMLTextAreaElement): Promise<Boolean> {
-		const href: string = new URL(
-			element.getAttribute('href') || "",
-			location.origin
-		).href;
+	public async prefetchHover(element: HTMLTextAreaElement): Promise<Boolean> {
+		const path = this.getPath(element.getAttribute('href'));
 
-		if (this.prefetched.has(href)) {
+		if (this.prefetched.has(path)) {
 			return true;
 		}
-		this.createLink(href);
 
-		await vitePrefech(element.getAttribute('href') || "");
+		this.prefetched.add(path);
+		await vitePrefech(path);
 		return true;
 	}
 
 	private prefetchVisible(): void {
-		const pageSetting = this.pageSettingMap.get(window.location.href);
-		if (pageSetting?.mode ? pageSetting?.mode !== 'visible' : this.setting.mode !== 'visible') return;
+		const pageSetting = this.pageSettingMap.get(this.getPath(window.location.href)) || this.setting;
+		if (pageSetting.mode !== 'visible') return;
+
 		if ("IntersectionObserver" in window === false) return;
 		this.observer ||
 			(this.observer = new IntersectionObserver(
 				(entries, observer) => {
 					entries.forEach(async (entry) => {
-						const href: string = new URL(
-							entry.target.getAttribute("href") || "",
-							location.origin
-						).href;
+						const path = this.getPath(entry.target.getAttribute('href'));
 
-						if (this.prefetched.has(href)) {
+						if (this.prefetched.has(path)) {
 							observer.unobserve(entry.target);
 							return;
 						}
 
 						if (entry.isIntersecting) {
-							this.createLink(href);
-							await vitePrefech(entry.target.getAttribute("href") || "");
+							this.prefetched.add(path);
+							await vitePrefech(path);
 							observer.unobserve(entry.target);
 						}
 					});
@@ -81,50 +66,52 @@ export class ClientRouter {
 
 		Array.from(document.querySelectorAll("a"))
 			.filter((element) => {
-				return this.prefetched.has(element.href) === false;
+				const path = this.getPath(element.href);
+				return this.prefetched.has(path) === false;
 			})
 			.forEach((element) => this.observer.observe(element));
 	}
-	private prefetchPage(): void {
-		const pageSetting = this.pageSettingMap.get(window.location.href);
-		if (pageSetting?.mode ? pageSetting?.mode !== 'page' : this.setting.mode !== 'page') return;
-		document.querySelectorAll("a").forEach(async (element) => {
-			const href: string = new URL(
-				element.getAttribute('href') || "",
-				location.origin
-			).href;
 
-			if (this.prefetched.has(href)) {
+	private prefetchPage(): void {
+		const pageSetting = this.pageSettingMap.get(this.getPath(window.location.href)) || this.setting;
+		if (pageSetting.mode !== 'page') return;
+
+
+		document.querySelectorAll("a").forEach(async (element) => {
+			const path = this.getPath(element.getAttribute('href'));
+
+			if (this.prefetched.has(path)) {
 				return;
 			}
-			this.createLink(href);
-			await vitePrefech(element.getAttribute('href') || "");
+
+			this.prefetched.add(path)
+			await vitePrefech(path);
 		})
 	}
 
 	private prefetchNested(dom: Document, layer: number): void {
-		const pageSetting = this.pageSettingMap.get(dom.location.href);
-		if (pageSetting?.mode ? pageSetting?.mode !== 'nested' :this.setting.mode !== 'nested') return;
+		const pageSetting = this.pageSettingMap.get(this.getPath(dom.location.href)) || this.setting;		
+		if (pageSetting.mode !== 'nested') return;
+		
 		dom.querySelectorAll('a').forEach(async (element) => {
-			const href: string = new URL(
-				element.getAttribute('href') || "",
-				location.origin
-			).href;
-			if (this.prefetched.has(href)) {
+			const path = this.getPath(element.getAttribute('href'));
+			
+			if (this.prefetched.has(path)) {
 				return;
 			}
 
-			this.createLink(href);
-			await vitePrefech(element.getAttribute('href') || "");
+			this.prefetched.add(path);
+			await vitePrefech(path);
+			
 			try {
-				const response = await fetch(href);
+				const response = await fetch(path);
 				const htmlString = await response.text();
 				const parser = new DOMParser();
 				const html = parser.parseFromString(htmlString, "text/html");
-				const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+				const PrefetchSettingJson = html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
 				const PrefetchSetting = JSON.parse(PrefetchSettingJson);
-				PrefetchSetting && this.setPagePrefetchRule(href, PrefetchSetting);
-				if(this.prefetched.has(href))return;
+				PrefetchSetting && this.setPagePrefetchRule(path, PrefetchSetting);
+				if (this.prefetched.has(path)) return;
 				this.prefetchNested(html, layer + 1);
 
 			} catch (error: any) {
@@ -133,34 +120,8 @@ export class ClientRouter {
 		})
 	}
 
-	private handleClientLinkBehavior(): void {
-		const pageSetting = this.pageSettingMap.get(window.location.href);
-		document.querySelectorAll("a").forEach((element) => {
-
-			if (pageSetting?.mode ? pageSetting?.mode === 'hover' : this.setting.mode === 'hover') {
-				element.addEventListener('mouseover', (event: MouseEvent) => {
-					event.preventDefault();
-					const target = event.target as HTMLTextAreaElement;
-					this.prefetchHover(target);
-				});
-			}
-
-			element.addEventListener("click", (event: MouseEvent) => {
-				event.preventDefault();
-				const target = event.target as HTMLTextAreaElement;
-				this.updatePageContext({
-					href: target.getAttribute("href") || "",
-					mode: "go",
-				});
-			});
-
-
-
-		});
-	}
-
 	private onPop(event: PopStateEvent): void {
-		this.updatePageContext({ href: window.location.href, mode: "back" });
+		this.updatePageContext({ href: this.getPath(window.location.href), mode: "back" });
 	}
 
 	private async updatePageContext({
@@ -172,23 +133,25 @@ export class ClientRouter {
 		mode: string;
 		data?: {};
 	}): Promise<boolean> {
+		const path = this.getPath(href);
+
 		try {
-			const response = await fetch(href);
+			const response = await fetch(path);
 			const htmlString = await response.text();
 
 			if (mode === "go") {
 				window.history.pushState(
-					{ prev: window.location.href },
+					{ prev: this.getPath(window.location.href) },
 					"",
-					href
+					path
 				);
 			}
 
 			const parser = new DOMParser();
 			const html = parser.parseFromString(htmlString, "text/html");
-			const PrefetchSettingJson =  html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
+			const PrefetchSettingJson = html.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
 			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
-			PrefetchSetting && this.setPagePrefetchRule(new URL(href, location.origin).href, PrefetchSetting);
+			PrefetchSetting && this.setPagePrefetchRule(path, PrefetchSetting);
 
 			document.body = html.body;
 
@@ -201,8 +164,8 @@ export class ClientRouter {
 	}
 
 	public go(path: string): Promise<boolean> {
-		const href = new URL(path, location.origin).href;
-		return this.updatePageContext({ href, mode: "go" });
+		path = this.getPath(path);
+		return this.updatePageContext({ href:path , mode: "go" });
 	}
 
 	public back(): void {
@@ -213,31 +176,52 @@ export class ClientRouter {
 		window.history.forward();
 	}
 
-/**
-	 * Should be called in _default.page.client render function.
-	 *
-	 */
+	/**
+		 * Should be called in _default.page.client render function.
+		 *
+		 */
 	public beforeRender(): void {
 		const PrefetchSettingJson = document.getElementById("prefetch-setting")?.getAttribute('data-setting') || "";
 		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 
 		PrefetchSetting && this.setPagePrefetchRule(document.location.href, PrefetchSetting);
 
-
-		this.handleClientLinkBehavior();
 		this.prefetchVisible();
 		this.prefetchPage();
 		this.prefetchNested(document, 0);
 	}
 
 	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
+		path = this.getPath(path);
 		this.pageSettingMap.get(path) || this.pageSettingMap.set(path, setting);
 	}
 }
 
-export { Link };
+const Link_ = ({ children, ...props }: { children?: ReactNode }) => {
+	//@ts-ignore
+	const clientRouter = import.meta.env.SSR ? null : window.clientRouter;
+	const pageSetting = clientRouter?.pageSettingMap.get(window.location.href) || clientRouter?.setting;
+	const isSettingHover = pageSetting?.mode === 'hover';
 
-function Link({ ...props }) {
-	// const className = [props.className, pageContext.urlPathname === props.href && 'is-active'].filter(Boolean).join(' ')
-	return <a {...props} />;
-}
+	
+	const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+		event.preventDefault();
+		const target = event.currentTarget;
+		clientRouter && clientRouter.go(target.getAttribute('href') || ''); // Adjust to get the href attribute
+	};
+
+	const handleMouseOver = (event: MouseEvent<HTMLAnchorElement>) => {
+		event.preventDefault();
+		const target = event.currentTarget;
+		clientRouter && clientRouter.prefetchHover(target);
+	};
+
+	return (
+		<a {...props} onClick={clientRouter ? handleClick : undefined} onMouseOver={isSettingHover ? handleMouseOver : undefined}>
+			{children}
+		</a>
+	);
+};
+
+// export const Link = Link_;
+export const Link = Island("Link", Link_);
