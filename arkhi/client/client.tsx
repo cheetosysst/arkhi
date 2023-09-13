@@ -107,6 +107,5 @@ const walk = (node: Node | null) => {
 
 export function renderIslands(node: Node) {
 	propsMap = superjson.parse(window.propString || "{}");
-	console.log(IslandMap);
 	walk(node);
 }
