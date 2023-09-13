@@ -1,22 +1,27 @@
 import React, { FunctionComponent } from "react";
-import { ComponentType } from "react";
+import type { ComponentType } from "react";
 
 export type IslandProps = { _island_id?: string };
 
 export const IslandMap = new Map<string, ComponentType<any>>();
 export const IslandProps = new Map<string, Object>();
 
+/**
+ * Generates an island component that can be hydrated on the frontend.
+ * @param Component React Component to convert into a island component.
+ * @param prefix Optional prefix in case there is a name conflict
+ * @returns Island component
+ */
 export function Island<T extends object>(
-	namespace: string,
-	Component: FunctionComponent<T & IslandProps> | FunctionComponent<T>
+	Component: FunctionComponent<T & IslandProps> | FunctionComponent<T>,
+	prefix: string = ""
 ): FunctionComponent<T & IslandProps> | FunctionComponent<T> {
-	const islandID = hash(`${namespace}${Component.name}`);
+	const islandID = `${prefix}${Component.name}`;
 	IslandMap.set(islandID, Component);
 
 	const NewComponent: ComponentType<T & IslandProps> = (props: T) => {
 		const propsID = hash(`${islandID}${JSON.stringify(props)}`);
 		IslandProps.set(propsID, props);
-		// TODO create prop map
 		return <Component {...props} _island_id={`${islandID}:${propsID}`} />;
 	};
 

@@ -21,6 +21,6 @@ export function Caller({ ...props }: PropsWithChildren) {
 	);
 }
 
-const CallerIsland = Island("Caller", Caller);
+const CallerIsland = Island(Caller);
 
 export default CallerIsland;

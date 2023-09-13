@@ -14,7 +14,7 @@ function Accumulator_({ ...props }) {
 	);
 }
 
-const Accumulator = Island("Component", Accumulator_);
+const Accumulator = Island(Accumulator_);
 export default Accumulator;
 
 function Adder_({ ...props }) {
@@ -25,7 +25,7 @@ function Adder_({ ...props }) {
 		</button>
 	);
 }
-export const Adder = Island("Component", Adder_);
+export const Adder = Island(Adder_);
 
 function Counter_({ temp, ...props }: { temp?: string }) {
 	const [count, setCount] = useState(0);
@@ -40,7 +40,7 @@ function Counter_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const Counter = Island("Component", Counter_);
+export const Counter = Island(Counter_);
 
 function CountNumber_({ temp, ...props }: { temp?: string }) {
 	const [count, setCount] = useState(0);
@@ -55,7 +55,7 @@ function CountNumber_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const CountNumber = Island("Component", CountNumber_);
+export const CountNumber = Island(CountNumber_);
 
 function TextDisplay_({ temp, ...props }: { temp?: string }) {
 	const [text, setText] = useState("Initial text");
@@ -66,7 +66,7 @@ function TextDisplay_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const TextDisplay = Island("Component", TextDisplay_);
+export const TextDisplay = Island(TextDisplay_);
 
 function ReverseCounter_({ temp, ...props }: { temp?: string }) {
 	const [count, setCount] = useState(10);
@@ -81,7 +81,7 @@ function ReverseCounter_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const ReverseCounter = Island("Component", ReverseCounter_);
+export const ReverseCounter = Island(ReverseCounter_);
 
 // Toggle Component
 function Toggle_({ temp, ...props }: { temp?: string }) {
@@ -93,7 +93,7 @@ function Toggle_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const Toggle = Island("Component", Toggle_);
+export const Toggle = Island(Toggle_);
 
 // DoubleCounter Component
 function DoubleCounter_({ temp, ...props }: { temp?: string }) {
@@ -109,7 +109,7 @@ function DoubleCounter_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const DoubleCounter = Island("Component", DoubleCounter_);
+export const DoubleCounter = Island(DoubleCounter_);
 
 // TripleCounter Component
 function TripleCounter_({ temp, ...props }: { temp?: string }) {
@@ -125,7 +125,7 @@ function TripleCounter_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const TripleCounter = Island("Component", TripleCounter_);
+export const TripleCounter = Island(TripleCounter_);
 
 // ColorChanger Component
 function ColorChanger_({ temp, ...props }: { temp?: string }) {
@@ -142,7 +142,7 @@ function ColorChanger_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const ColorChanger = Island("Component", ColorChanger_);
+export const ColorChanger = Island(ColorChanger_);
 
 // RandomColorChanger Component
 function RandomColorChanger_({ temp, ...props }: { temp?: string }) {
@@ -159,7 +159,7 @@ function RandomColorChanger_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const RandomColorChanger = Island("Component", RandomColorChanger_);
+export const RandomColorChanger = Island(RandomColorChanger_);
 
 // CounterDoubler Component
 function CounterDoubler_({ temp, ...props }: { temp?: string }) {
@@ -171,7 +171,7 @@ function CounterDoubler_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const CounterDoubler = Island("Component", CounterDoubler_);
+export const CounterDoubler = Island(CounterDoubler_);
 
 // VolumeController Component
 function VolumeController_({ temp, ...props }: { temp?: string }) {
@@ -190,7 +190,7 @@ function VolumeController_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const VolumeController = Island("Component", VolumeController_);
+export const VolumeController = Island(VolumeController_);
 
 // DatePicker Component
 function DatePicker_({ temp, ...props }: { temp?: string }) {
@@ -207,7 +207,7 @@ function DatePicker_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const DatePicker = Island("Component", DatePicker_);
+export const DatePicker = Island(DatePicker_);
 
 // TodoList Component
 function TodoList_({ temp, ...props }: { temp?: string }) {
@@ -250,7 +250,7 @@ function TodoList_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const TodoList = Island("Component", TodoList_);
+export const TodoList = Island(TodoList_);
 
 // Switch Component
 function Switch_({ temp, ...props }: { temp?: string }) {
@@ -262,7 +262,7 @@ function Switch_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const Switch = Island("Component", Switch_);
+export const Switch = Island(Switch_);
 
 // TextChanger Component
 function TextChanger_({ temp, ...props }: { temp?: string }) {
@@ -279,7 +279,7 @@ function TextChanger_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const TextChanger = Island("Component", TextChanger_);
+export const TextChanger = Island(TextChanger_);
 
 // ProgressBar Component
 function ProgressBar_({ temp, ...props }: { temp?: string }) {
@@ -298,7 +298,7 @@ function ProgressBar_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const ProgressBar = Island("Component", ProgressBar_);
+export const ProgressBar = Island(ProgressBar_);
 
 // Multiplier Component
 function Multiplier_({ temp, ...props }: { temp?: string }) {
@@ -310,7 +310,7 @@ function Multiplier_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const Multiplier = Island("Component", Multiplier_);
+export const Multiplier = Island(Multiplier_);
 
 // Divisor Component
 function Divisor_({ temp, ...props }: { temp?: string }) {
@@ -322,7 +322,7 @@ function Divisor_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const Divisor = Island("Component", Divisor_);
+export const Divisor = Island(Divisor_);
 
 // NoteMaker Component
 function NoteMaker_({ temp, ...props }: { temp?: string }) {
@@ -352,7 +352,7 @@ function NoteMaker_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const NoteMaker = Island("Component", NoteMaker_);
+export const NoteMaker = Island(NoteMaker_);
 
 // BrightnessController Component
 function BrightnessController_({ temp, ...props }: { temp?: string }) {
@@ -371,7 +371,7 @@ function BrightnessController_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const BrightnessController = Island("Component", BrightnessController_);
+export const BrightnessController = Island(BrightnessController_);
 
 // FontSizeController Component
 function FontSizeController_({ temp, ...props }: { temp?: string }) {
@@ -390,7 +390,7 @@ function FontSizeController_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const FontSizeController = Island("Component", FontSizeController_);
+export const FontSizeController = Island(FontSizeController_);
 
 // Stopwatch Component
 function Stopwatch_({ temp, ...props }: { temp?: string }) {
@@ -422,7 +422,7 @@ function Stopwatch_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const Stopwatch = Island("Component", Stopwatch_);
+export const Stopwatch = Island(Stopwatch_);
 
 // Currency Converter Component
 function CurrencyConverter_({ temp, ...props }: { temp?: string }) {
@@ -445,7 +445,7 @@ function CurrencyConverter_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const CurrencyConverter = Island("Component", CurrencyConverter_);
+export const CurrencyConverter = Island(CurrencyConverter_);
 
 // TextMirror Component
 function TextMirror_({ temp, ...props }: { temp?: string }) {
@@ -463,7 +463,7 @@ function TextMirror_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const TextMirror = Island("Component", TextMirror_);
+export const TextMirror = Island(TextMirror_);
 
 // TemperatureConverter Component
 function TemperatureConverter_({ temp, ...props }: { temp?: string }) {
@@ -485,7 +485,7 @@ function TemperatureConverter_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const TemperatureConverter = Island("Component", TemperatureConverter_);
+export const TemperatureConverter = Island(TemperatureConverter_);
 
 // PasswordGenerator Component
 function PasswordGenerator_({ temp, ...props }: { temp?: string }) {
@@ -510,4 +510,4 @@ function PasswordGenerator_({ temp, ...props }: { temp?: string }) {
 	);
 }
 
-export const PasswordGenerator = Island("Component", PasswordGenerator_);
+export const PasswordGenerator = Island(PasswordGenerator_);
