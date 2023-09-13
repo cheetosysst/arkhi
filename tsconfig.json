@@ -17,7 +17,8 @@
 		"transpileOnly": true,
 		"esm": true,
 		"compilerOptions": {
-			"moduleResolution": "Node16"
+			"module": "NodeNext",
+			"moduleResolution": "NodeNext"
 		}
 	}
 }
