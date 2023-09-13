@@ -1,7 +1,5 @@
 import { useSyncExternalStore } from "react";
 
-// type ShareListener = () => void;
-
 /**
  * Manages state across islands, and updates islands on state change.
  */
@@ -46,8 +44,8 @@ export class Share<T> {
 export function useShare<T>(store: Share<T>) {
 	const share = useSyncExternalStore(
 		store.subscribe,
-		() => store.getSnapshot(),
-		() => store.getSnapshot()
+		store.getSnapshot,
+		store.getSnapshot
 	);
 	return share;
 }
