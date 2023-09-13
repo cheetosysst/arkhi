@@ -1,36 +1,41 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-type ShareListener = () => void;
+// type ShareListener = () => void;
 
 /**
  * Manages state across islands, and updates islands on state change.
  */
-class Share<T> {
+export class Share<T> {
 	private value: T;
-	private listener: ShareListener[] = [];
+	private listener: Array<() => void> = [];
 
 	constructor(initialValue: T) {
 		this.value = initialValue;
+		this.getSnapshot = this.getSnapshot.bind(this);
+		this.subscribe = this.subscribe.bind(this);
 	}
 
-	public getter(): T {
+	set data(newData: T) {
+		this.value = newData;
+		this.emit();
+	}
+
+	public subscribe(onStoreChange: () => void) {
+		this.listener.push(onStoreChange);
+		return () => {
+			this.unsubscribe(onStoreChange);
+		};
+	}
+	private unsubscribe(onStoreChange: () => void) {
+		this.listener = this.listener.filter((item) => item !== onStoreChange);
+	}
+
+	public getSnapshot() {
 		return this.value;
 	}
 
-	public setter(value: T) {
-		this.value = value;
-		this.broadcast();
-	}
-
-	public subscribe(listener: ShareListener) {
-		this.listener.push(listener);
-	}
-	public unsubscribe(listener: ShareListener) {
-		this.listener = this.listener.filter((item) => item != listener);
-	}
-
-	private broadcast() {
-		this.listener.forEach((handler) => handler());
+	private emit() {
+		this.listener.forEach((item) => item());
 	}
 }
 
@@ -38,17 +43,11 @@ class Share<T> {
  * Returns a stateful value shared across islands, and a function to update it.
  * @param initialState initial state value
  */
-export function useShare<T>(initialState: T) {
-	const [state, setState] = useState(initialState);
-	const shareStore = new Share(initialState);
-
-	useEffect(() => {
-		const listener = () => setState(shareStore.getter());
-		shareStore.subscribe(listener);
-		return () => shareStore.unsubscribe(listener);
-	}, []);
-
-	const setter = (value: T) => shareStore.setter(value);
-
-	return [state, setter];
+export function useShare<T>(store: Share<T>) {
+	const share = useSyncExternalStore(
+		store.subscribe,
+		() => store.getSnapshot(),
+		() => store.getSnapshot()
+	);
+	return share;
 }
