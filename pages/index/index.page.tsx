@@ -9,8 +9,8 @@ import { ColorChanger } from "../about/Component";
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
 
-const IslandCounter = Island("index", Counter);
-const IslandAccumulator = Island("index", Accumulator);
+const IslandCounter = Island(Counter);
+const IslandAccumulator = Island(Accumulator);
 
 function Page() {
 	return (
