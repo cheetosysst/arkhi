@@ -6,9 +6,6 @@ import { UserConfig } from "vite";
 
 const config: UserConfig = {
 	plugins: [react(), ssr(), tsconfigPaths(), arkhiPlugin()],
-	esbuild: {
-		keepNames: true,
-	},
 };
 
 export default config;
