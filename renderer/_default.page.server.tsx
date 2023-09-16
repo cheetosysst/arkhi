@@ -18,33 +18,28 @@ async function render(pageContext: PageContextServer) {
 			<Page {...pageProps} />
 		</PageShell>
 	);
+	const headHtml = ReactDOMServer.renderToString(<>{pageContext.Head}</>);
 
 	// See https://vite-plugin-ssr.com/head
-	const { documentProps, PrefetchSetting } = pageContext.exports;
+	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
-	const title = (documentProps && documentProps.title) || "Vite SSR app";
-	const desc =
-		(documentProps && documentProps.description) ||
-		"App using Vite + vite-plugin-ssr";
 
 	const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" href="${logoUrl}" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="${desc}" />
-        <title>${title}</title>
-      </head>
-      <body>
-        <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
-        <div id="prefetch-setting" data-setting = ${JSON.stringify(
-          PrefetchSetting || ""
-        )}></div>
-        <script>
-          var propString = '${dangerouslySkipEscape(propString || "")}'
-        </script>
-      </body>
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			${dangerouslySkipEscape(headHtml)}
+		</head>
+		<body>
+			<div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
+			<div id="prefetch-setting" data-setting = ${JSON.stringify(
+				PrefetchSetting || ""
+			)}></div>
+			<script>
+				var propString = '${dangerouslySkipEscape(propString || "")}'
+			</script>
+		</body>
     </html>`;
 
 	return {
