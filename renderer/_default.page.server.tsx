@@ -4,7 +4,7 @@ import { PageShell } from "./PageShell";
 import { escapeInject, dangerouslySkipEscape } from "vite-plugin-ssr";
 import logoUrl from "/logo.svg";
 import type { PageContextServer } from "./types";
-import { IslandMap, IslandProps } from "@/arkhi/client";
+import { IslandProps } from "@/arkhi/client";
 import SuperJSON from "superjson";
 
 export { render };
@@ -21,11 +21,13 @@ async function render(pageContext: PageContextServer) {
 
 	// See https://vite-plugin-ssr.com/head
 	const { documentProps, PrefetchSetting } = pageContext.exports;
-	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
 	const title = (documentProps && documentProps.title) || "Vite SSR app";
 	const desc =
 		(documentProps && documentProps.description) ||
 		"App using Vite + vite-plugin-ssr";
+
+	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
+	IslandProps.clear();
 
 	const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -39,8 +41,8 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-          PrefetchSetting || ""
-        )}></div>
+			PrefetchSetting || ""
+		)}></div>
         <script>
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>

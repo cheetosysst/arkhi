@@ -2,6 +2,7 @@ import React, { FunctionComponent } from "react";
 import type { ComponentType } from "react";
 
 export type IslandProps = { _island_id?: string };
+export type IslandComponent<T> = ComponentType<T & IslandProps>;
 
 export const IslandMap = new Map<string, ComponentType<any>>();
 export const IslandProps = new Map<string, Object>();
@@ -13,9 +14,9 @@ export const IslandProps = new Map<string, Object>();
  * @returns Island component
  */
 export function Island<T extends object>(
-	Component: FunctionComponent<T & IslandProps> | FunctionComponent<T>,
+	Component: ComponentType<T & IslandProps>,
 	prefix: string = ""
-): FunctionComponent<T & IslandProps> | FunctionComponent<T> {
+): IslandComponent<T> {
 	const islandID = `${prefix}${Component.name}`;
 	IslandMap.set(islandID, Component);
 
