@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import { IslandMap } from "./island";
 import superjson from "superjson";
+import { Link } from "./router";
 
 declare global {
 	interface Window {
@@ -39,11 +40,15 @@ const stringToStyle = (styleString: string): Record<string, string> => {
 const attributesMap = (attributes: NamedNodeMap) => {
 	const map = new Map<string, any>();
 	for (const item of attributes) {
+		let name: string = item.name;
 		let value: any = item.value;
-		if (item.name === 'style') {
+		if (name === 'style') {
 			value = stringToStyle(item.value);
 		}
-		map.set(item.name, value);
+		if (name === 'class') {
+			name = 'className';
+		}
+		map.set(name, value);
 	}
 	return map;
 };
@@ -83,6 +88,13 @@ const explore = (parentNode: Node) => {
 		}
 
 		const childTree = explore(currentNode);
+
+		if (currentNode.nodeName === "A") {
+			siblings.push(<Link href={(currentNode as HTMLAnchorElement).href} {...attributes}>{childTree.props.children.length ? childTree : undefined}</Link>);
+			currentNode = currentNode.nextSibling as Node;
+			continue;
+		}
+
 		const component = childTree.props.children.length
 			? React.createElement(
 				currentNode.nodeName.toLowerCase(),

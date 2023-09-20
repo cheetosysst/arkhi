@@ -42,6 +42,7 @@ async function render(pageContext: PageContextServer) {
           PrefetchSetting || ""
         )}></div>
         <script>
+					var prefetchSetting = '${dangerouslySkipEscape(JSON.stringify(PrefetchSetting || ""))}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
       </body>

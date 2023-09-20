@@ -31,7 +31,7 @@ export class ClientRouter {
 		}
 	}
 
-	private getPath(url: string | null | undefined) {
+	public getPath(url: string | null | undefined) {
 		return new URL(url || "", location.origin).pathname;
 	};
 
@@ -82,7 +82,9 @@ export class ClientRouter {
 				const path = this.getPath(element.href);
 				return this.prefetched.has(path) === false;
 			})
-			.forEach((element) => this.observer.observe(element));
+			.forEach((element) => {
+				this.observer.observe(element);
+			});
 	}
 
 	private prefetchPage(): void {
@@ -103,9 +105,9 @@ export class ClientRouter {
 		});
 	}
 
-	private prefetchNested(dom: Document, layer: number): void {
+	private prefetchNested(dom: Document, href:string, layer: number): void {
 		const pageSetting =
-			this.pageSettingMap.get(this.getPath(dom.location.href)) ||
+			this.pageSettingMap.get(this.getPath(href)) ||
 			this.setting;
 		if (pageSetting.mode !== "nested") return;
 
@@ -125,24 +127,17 @@ export class ClientRouter {
 				const parser = new DOMParser();
 				const html = parser.parseFromString(htmlString, "text/html");
 				const PrefetchSettingJson =
-					html
-						.getElementById("prefetch-setting")
-						?.getAttribute("data-setting") || "";
+				html
+				.getElementById("prefetch-setting")
+				?.getAttribute("data-setting") || "";
 				const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 				PrefetchSetting &&
-					this.setPagePrefetchRule(path, PrefetchSetting);
-				if (this.prefetched.has(path)) return;
-				this.prefetchNested(html, layer + 1);
+				this.setPagePrefetchRule(path, PrefetchSetting);
+
+				this.prefetchNested(html, path, layer + 1);
 			} catch (error: any) {
 				console.error("Fetch Error:", error, error.message);
 			}
-		});
-	}
-
-	private onPop(event: PopStateEvent): void {
-		this.updatePageContext({
-			href: this.getPath(window.location.href),
-			mode: "back",
 		});
 	}
 
@@ -175,6 +170,15 @@ export class ClientRouter {
 				html
 					.getElementById("prefetch-setting")
 					?.getAttribute("data-setting") || "";
+
+
+			//This is hack to script force injection. Ref: https://stackoverflow.com/questions/1197575/can-scripts-be-inserted-with-innerhtml
+			var g = document.createElement('script');
+			var s = document.getElementsByTagName('script')[0];
+			g.text = html.body.getElementsByTagName("script")[0].textContent || "";
+			s.parentNode?.insertBefore(g, s);
+
+
 			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 			PrefetchSetting && this.setPagePrefetchRule(path, PrefetchSetting);
 
@@ -186,6 +190,13 @@ export class ClientRouter {
 			console.error("Fetch Error:", error.message);
 			return false;
 		}
+	}
+
+	private onPop(event: PopStateEvent): void {
+		this.updatePageContext({
+			href: this.getPath(window.location.href),
+			mode: "back",
+		});
 	}
 
 	public go(path: string): Promise<boolean> {
@@ -213,11 +224,11 @@ export class ClientRouter {
 		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 
 		PrefetchSetting &&
-			this.setPagePrefetchRule(document.location.href, PrefetchSetting);
+			this.setPagePrefetchRule(this.getPath(document.location.href), PrefetchSetting);
 
 		this.prefetchVisible();
 		this.prefetchPage();
-		this.prefetchNested(document, 0);
+		this.prefetchNested(document, document.location.href, 0);
 	}
 
 	public setPagePrefetchRule(path: string, setting: PrefetchSetting): void {
@@ -234,7 +245,7 @@ const Link_ = ({
 }: PropsWithChildren & { className?: string; href: string }) => {
 	const clientRouter = import.meta.env.SSR ? null : window.clientRouter;
 	const pageSetting =
-		clientRouter?.pageSettingMap.get(window.location.href) ||
+		clientRouter?.pageSettingMap.get(clientRouter.getPath(window.location.href)) ||
 		clientRouter?.setting;
 	const isSettingHover = pageSetting?.mode === "hover";
 
