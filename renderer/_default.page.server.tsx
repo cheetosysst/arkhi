@@ -4,7 +4,7 @@ import { PageShell } from "./PageShell";
 import { escapeInject, dangerouslySkipEscape } from "vite-plugin-ssr";
 import logoUrl from "/logo.svg";
 import type { PageContextServer } from "./types";
-import { IslandMap, IslandProps } from "@/arkhi/client";
+import { IslandProps } from "@/arkhi/client";
 import SuperJSON from "superjson";
 
 export { render };
@@ -20,9 +20,9 @@ async function render(pageContext: PageContextServer) {
 	);
 	const headHtml = ReactDOMServer.renderToString(<>{pageContext.Head}</>);
 
-	// See https://vite-plugin-ssr.com/head
 	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
+	IslandProps.clear();
 
 	const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -31,15 +31,16 @@ async function render(pageContext: PageContextServer) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			${dangerouslySkipEscape(headHtml)}
 		</head>
-		<body>
-			<div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
-			<div id="prefetch-setting" data-setting = ${JSON.stringify(
-				PrefetchSetting || ""
-			)}></div>
-			<script>
-				var propString = '${dangerouslySkipEscape(propString || "")}'
-			</script>
-		</body>
+
+      <body>
+        <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
+        <div id="prefetch-setting" data-setting = ${JSON.stringify(
+			PrefetchSetting || ""
+		)}></div>
+        <script>
+          var propString = '${dangerouslySkipEscape(propString || "")}'
+        </script>
+      </body>
     </html>`;
 
 	return {
