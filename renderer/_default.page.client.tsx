@@ -1,8 +1,7 @@
-// import { renderIslands, ClientRouter } from "../arkhi/index";
-import { renderIslands, ClientRouter } from "@/arkhi/client";
+import { renderIslands, ClientRouter } from "#/arkhi/client";
 
 //@ts-ignore
-window.clientRouter ||= new ClientRouter(render, { mode: 'visible' });
+window.clientRouter ||= new ClientRouter(render, { mode: "visible" });
 //@ts-ignore
 const clientRouter = window.clientRouter;
 function render() {

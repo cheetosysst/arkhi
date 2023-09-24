@@ -3,7 +3,7 @@ import logo from "/logo.svg";
 import { PageContextProvider } from "./usePageContext";
 import type { PageContext } from "./types";
 import "./PageShell.css";
-import { Link } from "@/arkhi/client";
+import { Link } from "#/arkhi/client";
 
 export { PageShell };
 
@@ -92,7 +92,7 @@ function Logo() {
 			}}
 		>
 			<a href="/">
-				<img src={'/logo.svg'} height={64} width={64} alt="logo" />
+				<img src={"/logo.svg"} height={64} width={64} alt="logo" />
 			</a>
 		</div>
 	);

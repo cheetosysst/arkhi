@@ -1,5 +1,5 @@
-import { Island } from "@/arkhi/client";
-import { api } from "@/arkhi/client/api";
+import { Island } from "#/arkhi/client";
+import { api } from "#/arkhi/client/api";
 import React, { useRef, useState } from "react";
 import { PropsWithChildren } from "react";
 

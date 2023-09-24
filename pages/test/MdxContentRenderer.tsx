@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Island } from "@/arkhi/client";
+import { Island } from "#/arkhi/client";
 import { allFiles as allMdxFiles } from "../../content/*";
 
 function MdxContentRenderer_({ ...props }) {

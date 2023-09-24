@@ -1,4 +1,4 @@
-import { prefetch as vitePrefech } from 'vite-plugin-ssr/client/router'
+import { prefetch as vitePrefech } from 'vike/client/router'
 
 type PrefetchMode = 'hover' | 'visible' | 'page' | 'nested';
 type PrefetchSetting = { mode?: PrefetchMode };

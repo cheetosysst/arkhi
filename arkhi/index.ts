@@ -1,8 +1,8 @@
-// Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
+// Note that this file isn't processed by Vite, see https://github.com/vikejs/vike/issues/562
 
 import express from "express";
 import compression from "compression";
-import { renderPage } from "vite-plugin-ssr";
+import { renderPage } from "vike/server";
 import { root } from "./root.js";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { appRouters } from "../api/index.js";
@@ -46,12 +46,15 @@ async function startServer() {
 		const pageContext = await renderPage(pageContextInit);
 		const { httpResponse } = pageContext;
 		if (!httpResponse) return next();
-		const { body, statusCode, contentType, earlyHints } = httpResponse;
+
+		const { body, statusCode, headers, earlyHints } = httpResponse;
 		if (res.writeEarlyHints)
 			res.writeEarlyHints({
 				link: earlyHints.map((e) => e.earlyHintLink),
 			});
-		res.status(statusCode).type(contentType).send(body);
+		headers.forEach(([name, value]) => res.setHeader(name, value));
+		res.status(statusCode);
+		res.send(body);
 	});
 
 	const port = process.env.PORT || 3000;
