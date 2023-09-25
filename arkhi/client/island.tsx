@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React from "react";
 import type { ComponentType } from "react";
 
 export type IslandProps = { _island_id?: string };

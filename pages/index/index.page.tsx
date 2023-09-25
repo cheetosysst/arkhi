@@ -3,9 +3,9 @@ import Counter from "./Counter";
 import Accumulator from "./Accumulator";
 import CallerIsland from "./Caller";
 
-import { Island, IslandProps } from "@/arkhi/client";
+import { Island } from "#/arkhi/client";
 import { ColorChanger } from "../about/Component";
-import { Head } from "@/arkhi/client/Head";
+import { Head } from "#/arkhi/client/Head";
 
 export { Page };
 export const PrefetchSetting = { mode: "hover" };

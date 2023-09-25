@@ -1,14 +1,13 @@
 import ReactDOMServer from "react-dom/server";
 import React from "react";
 import { PageShell } from "./PageShell";
-import { escapeInject, dangerouslySkipEscape } from "vite-plugin-ssr";
-import logoUrl from "/logo.svg";
+import { escapeInject, dangerouslySkipEscape } from "vike/server";
 import type { PageContextServer } from "./types";
-import { IslandProps } from "@/arkhi/client";
+import { IslandProps } from "#/arkhi/client";
 import SuperJSON from "superjson";
 
 export { render };
-// See https://vite-plugin-ssr.com/data-fetching
+// See https://vike.dev/data-fetching
 export const passToClient = ["pageProps", "urlPathname"];
 
 async function render(pageContext: PageContextServer) {
@@ -46,7 +45,7 @@ async function render(pageContext: PageContextServer) {
 	return {
 		documentHtml,
 		pageContext: {
-			// We can add some `pageContext` here, which is useful if we want to do page redirection https://vite-plugin-ssr.com/page-redirection
+			// We can add some `pageContext` here, which is useful if we want to do page redirection https://vike.dev/page-redirection
 		},
 	};
 }

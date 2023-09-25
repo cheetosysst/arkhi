@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { Island } from "@/arkhi/client";
+import { Island } from "#/arkhi/client";
 
 import MDXContent, { metadata as mdxMetadata } from "../../content/index.md";
 import Post02, {

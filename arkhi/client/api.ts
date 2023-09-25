@@ -1,4 +1,4 @@
-import type { AppRouters } from "@/api";
+import type { AppRouters } from "#/api";
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 
