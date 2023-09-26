@@ -34,5 +34,6 @@
       "import": "./dist/plugins/index.js",
       "types": "./dist/plugins/index.d.ts"
     }
-  }
+  },
+  "type": "module"
 }
