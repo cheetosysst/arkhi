@@ -7,7 +7,7 @@
     "build": "vite build",
     "build:arkhi": "npm run build -w ./arkhi",
     "server": "ts-node server.ts",
-    "server:prod": "cross-env NODE_ENV=production ts-node ./arkhi/index.ts"
+    "server:prod": "cross-env NODE_ENV=production ts-node server.ts"
   },
   "dependencies": {
     "@mdx-js/mdx": "^2.3.0",
