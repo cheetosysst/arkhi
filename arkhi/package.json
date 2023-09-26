@@ -1,0 +1,38 @@
+{
+  "name": "arkhi",
+  "version": "0.1.0",
+  "description": "Island architecture based meta framework",
+  "devDependencies": {},
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cheetosysst/arkhi.git"
+  },
+  "author": "cheetosysst",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cheetosysst/arkhi/issues"
+  },
+  "homepage": "https://github.com/cheetosysst/arkhi#readme",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./arkhi/client": {
+      "main": "./dist/client/index.js",
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
+    },
+    "./arkhi/server": {
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts"
+    },
+    "./arkhi/plugin": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts"
+    }
+  }
+}

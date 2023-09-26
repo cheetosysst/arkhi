@@ -5,6 +5,7 @@
     "dev": "npm run server",
     "prod": "npm run build && npm run server:prod",
     "build": "vite build",
+    "build:arkhi": "npm run build -w ./arkhi",
     "server": "ts-node server.ts",
     "server:prod": "cross-env NODE_ENV=production ts-node ./arkhi/index.ts"
   },
@@ -35,5 +36,8 @@
   "type": "module",
   "devDependencies": {
     "@types/express": "^4.17.18"
-  }
+  },
+  "workspaces": [
+    "arkhi"
+  ]
 }
