@@ -3,7 +3,6 @@ export type { PageContextClient };
 export type { PageContext };
 export type { PageProps };
 
-import type { ReactNode } from "react";
 import type {
 	PageContextBuiltInServer,
 	PageContextBuiltInClientWithServerRouting as PageContextBuiltInClient,
@@ -22,7 +21,6 @@ export type PageContextCustom = {
 			mode?: string;
 		};
 	};
-	Head: ReactNode[] | undefined;
 };
 
 type PageContextServer = PageContextBuiltInServer<Page> & PageContextCustom;
