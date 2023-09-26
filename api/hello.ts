@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "../arkhi/trpc.js";
+import { publicProcedure, createTRPCRouter } from "./trpc.js";
 
 /**
  * Example router

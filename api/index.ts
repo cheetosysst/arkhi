@@ -1,4 +1,4 @@
-import { createTRPCRouter } from "../arkhi/trpc.js";
+import { createTRPCRouter } from "./trpc.js";
 import { helloRouter } from "./hello.js";
 
 /**
