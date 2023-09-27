@@ -5,7 +5,7 @@ import CallerIsland from "./Caller";
 
 import { Island } from "#/arkhi/client";
 import { ColorChanger } from "../about/Component";
-import { Head } from "#/arkhi/client/Head";
+import { Head } from "#/arkhi/client";
 
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
