@@ -7,6 +7,8 @@ import { Island } from "#/arkhi/client";
 import { ColorChanger } from "../about/Component";
 import { Head } from "#/arkhi/client";
 
+import ShowState from "../ShowImage";
+
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
 
@@ -19,6 +21,7 @@ function Page() {
 			<Head>
 				<title>Index Page - Arkhi</title>
 			</Head>
+			<ShowState />
 			<h1>Welcome</h1>
 			<ColorChanger />
 			This page is:

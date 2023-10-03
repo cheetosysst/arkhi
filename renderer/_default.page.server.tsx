@@ -5,6 +5,14 @@ import { escapeInject, dangerouslySkipEscape } from "vike/server";
 import type { PageContextServer } from "./types";
 import { IslandProps } from "#/arkhi/client";
 import SuperJSON from "superjson";
+import { getPreloadTags, preloadAsset } from './preloadAssets'
+
+const images = ['/artificial-island.jpg', '/vike-vertical.svg'];
+images.forEach(imagePath => {
+	preloadAsset('/', [{ path: imagePath, type: 'image', hint: true }], false);
+});
+//照順序分別填入分頁位置，Asset位置，asset 的 type ，是否全局(全局指無論甚麼頁面都默認會載入)
+//preloadAsset('/about', [{ path: '/vike-vertical.svg', type: 'image', hint: true }], false);
 
 export { render };
 // See https://vike.dev/data-fetching
@@ -17,7 +25,15 @@ async function render(pageContext: PageContextServer) {
 			<Page {...pageProps} />
 		</PageShell>
 	);
-	const headHtml = ReactDOMServer.renderToString(<>{pageContext.Head}</>);
+
+	const preloadTags = getPreloadTags(pageContext.urlPathname);
+	// const preloadTags = getPreloadAssets(pageContext.urlPathname)
+	const headHtml = ReactDOMServer.renderToString(
+		<>
+			{pageContext.Head}
+			{preloadTags && <div dangerouslySetInnerHTML={{ __html: preloadTags }} />}
+		</>
+	);
 
 	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
@@ -34,8 +50,8 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-			PrefetchSetting || ""
-		)}></div>
+		PrefetchSetting || ""
+	)}></div>
         <script>
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
