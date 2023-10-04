@@ -1,8 +1,7 @@
 {
   "name": "arkhi",
-  "version": "0.1.0",
+  "version": "0.1.12",
   "description": "Island architecture based meta framework",
-  "devDependencies": {},
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,22 +17,20 @@
   },
   "homepage": "https://github.com/cheetosysst/arkhi#readme",
   "files": [
-    "dist"
+    "client",
+    "server",
+    "plugins",
+    "tsconfig.json",
+    "README.md"
   ],
   "exports": {
-    "./arkhi/client": {
-      "main": "./dist/client/index.js",
-      "import": "./dist/client/index.js",
-      "types": "./dist/client/index.d.ts"
-    },
-    "./arkhi/server": {
-      "import": "./dist/server/index.js",
-      "types": "./dist/server/index.d.ts"
-    },
-    "./arkhi/plugin": {
-      "import": "./dist/plugins/index.js",
-      "types": "./dist/plugins/index.d.ts"
-    }
+    "./arkhi/client": "./client/index.tsx",
+    "./arkhi/server": "./server/index.ts",
+    "./arkhi/plugins": "./plugins/index.ts"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^20.8.2",
+    "typescript": "^5.2.2"
+  }
 }

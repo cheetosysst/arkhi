@@ -1,8 +1,9 @@
 {
 	"compilerOptions": {
 		"strict": true,
-		"module": "ES2020",
-		"target": "ES2020",
+		"module": "CommonJS",
+		"target": "ESNext",
+		"allowSyntheticDefaultImports": true,
 		"moduleResolution": "Node",
 		"lib": ["DOM", "DOM.Iterable", "ESNext"],
 		"types": ["vite/client"],
@@ -10,6 +11,7 @@
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"declaration": true,
+		"declarationMap": true,
 		"baseUrl": ".",
 		"paths": {
 			"arkhi/client": ["client/index"],
@@ -18,5 +20,6 @@
 		},
 		"outDir": "dist"
 	},
-	"include": ["./client/index.tsx", "./server/index.ts", "./plugins/index.ts"]
+	"include": ["./client", "./server", "./plugins"],
+	"exclude": ["node_modules"]
 }

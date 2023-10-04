@@ -45,10 +45,11 @@ export async function startServer() {
 		if (!httpResponse) return next();
 
 		const { body, statusCode, headers, earlyHints } = httpResponse;
-		if (res.writeEarlyHints)
+		if (res.writeEarlyHints) {
 			res.writeEarlyHints({
 				link: earlyHints.map((e) => e.earlyHintLink),
 			});
+		}
 		headers.forEach(([name, value]) => res.setHeader(name, value));
 		res.status(statusCode);
 		res.send(body);
