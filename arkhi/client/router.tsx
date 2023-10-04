@@ -1,4 +1,4 @@
-import { prefetch as vitePrefech } from "vite-plugin-ssr/client/router";
+import { prefetch as vitePrefech } from "vike/client/router";
 import { Island } from "./island";
 import React, { MouseEvent, PropsWithChildren } from "react";
 
@@ -275,4 +275,4 @@ const Link_ = ({
 };
 
 // export const Link = Link_;
-export const Link = Island("Link", Link_);
+export const Link = Island(Link_);
