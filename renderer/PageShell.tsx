@@ -3,7 +3,7 @@ import logo from "/logo.svg";
 import { PageContextProvider } from "./usePageContext";
 import type { PageContext } from "./types";
 import "./PageShell.css";
-import { Link } from "@/arkhi/client";
+import { ArkhiProvider, Link } from "#/arkhi/client";
 
 export { PageShell };
 
@@ -16,23 +16,25 @@ function PageShell({
 }) {
 	return (
 		<React.StrictMode>
-			<PageContextProvider pageContext={pageContext}>
-				<Layout>
-					<Sidebar>
-						<Logo />
-						<Link className="navitem" href="/">
-							Home
-						</Link>
-						<Link className="navitem" href="/about">
-							About
-						</Link>
-						<Link className="navitem" href="/test">
-							Test
-						</Link>
-					</Sidebar>
-					<Content>{children}</Content>
-				</Layout>
-			</PageContextProvider>
+			<ArkhiProvider>
+				<PageContextProvider pageContext={pageContext}>
+					<Layout>
+						<Sidebar>
+							<Logo />
+							<Link className="navitem" href="/">
+								Home
+							</Link>
+							<Link className="navitem" href="/about">
+								About
+							</Link>
+							<Link className="navitem" href="/test">
+								Test
+							</Link>
+						</Sidebar>
+						<Content>{children}</Content>
+					</Layout>
+				</PageContextProvider>
+			</ArkhiProvider>
 		</React.StrictMode>
 	);
 }
@@ -92,7 +94,7 @@ function Logo() {
 			}}
 		>
 			<a href="/">
-				<img src={'/logo.svg'} height={64} width={64} alt="logo" />
+				<img src={"/logo.svg"} height={64} width={64} alt="logo" />
 			</a>
 		</div>
 	);

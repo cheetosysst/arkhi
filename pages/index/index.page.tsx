@@ -3,8 +3,9 @@ import Counter from "./Counter";
 import Accumulator from "./Accumulator";
 import CallerIsland from "./Caller";
 
-import { Island, IslandProps } from "@/arkhi/client";
+import { Island } from "#/arkhi/client";
 import { ColorChanger } from "../about/Component";
+import { Head } from "#/arkhi/client";
 
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
@@ -15,6 +16,9 @@ const IslandAccumulator = Island(Accumulator);
 function Page() {
 	return (
 		<>
+			<Head>
+				<title>Index Page - Arkhi</title>
+			</Head>
 			<h1>Welcome</h1>
 			<ColorChanger />
 			This page is:

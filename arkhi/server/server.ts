@@ -1,19 +1,14 @@
-// Note that this file isn't processed by Vite, see https://github.com/brillout/vite-plugin-ssr/issues/562
-
-import express from "express";
 import compression from "compression";
-import { renderPage } from "vite-plugin-ssr";
-import { root } from "./root.js";
+import express from "express";
+import { renderPage } from "vike/server";
+import { applyMiddleware } from "./middleware.js";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import { appRouters } from "../api/index.js";
-import { createContext } from "./context.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-startServer();
-
-async function startServer() {
+export async function startServer() {
 	const app = express();
+	const root = process.cwd();
 
 	app.use(compression());
 
@@ -31,13 +26,15 @@ async function startServer() {
 		app.use(viteDevMiddleware);
 	}
 
-	app.use(
-		"/trpc",
-		trpcExpress.createExpressMiddleware({
-			router: appRouters,
-			createContext,
-		})
-	);
+	applyMiddleware(app);
+
+	// app.use(
+	// 	"/trpc",
+	// 	trpcExpress.createExpressMiddleware({
+	// 		router: appRouters,
+	// 		createContext,
+	// 	})
+	// );
 
 	app.get("*", async (req, res, next) => {
 		const pageContextInit = {
@@ -46,12 +43,15 @@ async function startServer() {
 		const pageContext = await renderPage(pageContextInit);
 		const { httpResponse } = pageContext;
 		if (!httpResponse) return next();
-		const { body, statusCode, contentType, earlyHints } = httpResponse;
+
+		const { body, statusCode, headers, earlyHints } = httpResponse;
 		if (res.writeEarlyHints)
 			res.writeEarlyHints({
 				link: earlyHints.map((e) => e.earlyHintLink),
 			});
-		res.status(statusCode).type(contentType).send(body);
+		headers.forEach(([name, value]) => res.setHeader(name, value));
+		res.status(statusCode);
+		res.send(body);
 	});
 
 	const port = process.env.PORT || 3000;

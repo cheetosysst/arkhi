@@ -9,17 +9,14 @@
 		"jsx": "react",
 		"skipLibCheck": true,
 		"esModuleInterop": true,
+		"declaration": true,
 		"baseUrl": ".",
 		"paths": {
-			"#/*": ["./*"]
-		}
+			"arkhi/client": ["client/index"],
+			"arkhi/server": ["server/index"],
+			"arkhi/plugins": ["plugins/index"]
+		},
+		"outDir": "dist"
 	},
-	"ts-node": {
-		"transpileOnly": true,
-		"esm": true,
-		"compilerOptions": {
-			"module": "NodeNext",
-			"moduleResolution": "NodeNext"
-		}
-	}
+	"include": ["./client/index.tsx", "./server/index.ts", "./plugins/index.ts"]
 }

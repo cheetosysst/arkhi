@@ -1,14 +1,13 @@
 import ReactDOMServer from "react-dom/server";
 import React from "react";
 import { PageShell } from "./PageShell";
-import { escapeInject, dangerouslySkipEscape } from "vite-plugin-ssr";
-import logoUrl from "/logo.svg";
+import { escapeInject, dangerouslySkipEscape } from "vike/server";
 import type { PageContextServer } from "./types";
-import { IslandMap, IslandProps } from "@/arkhi/client";
+import { IslandProps } from "#/arkhi/client";
 import SuperJSON from "superjson";
 
 export { render };
-// See https://vite-plugin-ssr.com/data-fetching
+// See https://vike.dev/data-fetching
 export const passToClient = ["pageProps", "urlPathname"];
 
 async function render(pageContext: PageContextServer) {
@@ -18,29 +17,25 @@ async function render(pageContext: PageContextServer) {
 			<Page {...pageProps} />
 		</PageShell>
 	);
+	const headHtml = ReactDOMServer.renderToString(<>{pageContext.Head}</>);
 
-	// See https://vite-plugin-ssr.com/head
-	const { documentProps, PrefetchSetting } = pageContext.exports;
+	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
-	const title = (documentProps && documentProps.title) || "Vite SSR app";
-	const desc =
-		(documentProps && documentProps.description) ||
-		"App using Vite + vite-plugin-ssr";
+	IslandProps.clear();
 
 	const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" href="${logoUrl}" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="${desc}" />
-        <title>${title}</title>
-      </head>
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			${dangerouslySkipEscape(headHtml)}
+		</head>
+
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-          PrefetchSetting || ""
-        )}></div>
+			PrefetchSetting || ""
+		)}></div>
         <script>
 					var prefetchSetting = '${dangerouslySkipEscape(JSON.stringify(PrefetchSetting || ""))}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
@@ -51,7 +46,7 @@ async function render(pageContext: PageContextServer) {
 	return {
 		documentHtml,
 		pageContext: {
-			// We can add some `pageContext` here, which is useful if we want to do page redirection https://vite-plugin-ssr.com/page-redirection
+			// We can add some `pageContext` here, which is useful if we want to do page redirection https://vike.dev/page-redirection
 		},
 	};
 }
