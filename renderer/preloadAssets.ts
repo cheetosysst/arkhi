@@ -2,57 +2,44 @@ type AssetType = 'audio' | 'document' | 'embed' | 'fetch' | 'font' | 'image' | '
 type declareAsset = { path: string, type: AssetType };
 type AssetPath = string | Array<string> | Array<declareAsset>;
 
-const AllPageAssets = new Set<declareAsset>();
-const SpecificPageAssets = new Map<string, Set<declareAsset>>();
 
+const AssetsMap = new Map<string, Set<declareAsset>>();//儲存頁面與其預加載資源
 
 export function preloadAsset(
-    paths: AssetPath,
-    page: string = 'allpages',
-    assetType?: AssetType,
+    paths: AssetPath,// 資源的路徑，可以是一個字串、字串陣列或者包含資源資訊的物件陣列
+    page: string = 'allpages',// 資源相關聯的頁面
+    assetType?: AssetType,// 資源的類型（可選）
 ) {
-    const assetsSet = page === 'allpages' ? AllPageAssets : getPageAssetSet(page);
+    const assetsSet = getPageAssetSet(page);// 獲取指定頁面的Set
 
+    // 將資源的路徑存進相應頁面的Set裡
     if (assetType && typeof paths === 'string') {
-        if (!assetExists(paths, assetsSet)) {
-            assetsSet.add({ path: paths, type: assetType });
-        }
-    } else if (assetType && typeof paths[0] === 'string') {
+        assetsSet.add({ path: paths, type: assetType });
+    } else if (assetType && Array.isArray(paths)) {
         (paths as string[]).forEach(path => {
-            if (!assetExists(path, assetsSet)) {
-                assetsSet.add({ path, type: assetType });
-            }
+            assetsSet.add({ path, type: assetType });
         });
     } else {
         (paths as Array<declareAsset>).forEach(asset => {
-            if (!assetExists(asset.path, assetsSet)) {
-                assetsSet.add(asset);
-            }
+            assetsSet.add(asset);
         });
     }
 }
 
-function assetExists(path: string, assetsSet: Set<declareAsset>): boolean {
-    for (const asset of assetsSet) {
-        if (asset.path === path) {
-            return true;
-        }
-    }
-    return false;
-}
-
-
+// 獲取或創建與指定頁面相關的Set
 function getPageAssetSet(page: string): Set<declareAsset> {
-    if (!SpecificPageAssets.has(page)) {
-        SpecificPageAssets.set(page, new Set());
+    if (!AssetsMap.has(page)) {
+        AssetsMap.set(page, new Set());
     }
-    return SpecificPageAssets.get(page)!;
+    return AssetsMap.get(page)!;
 }
 
+// 生成preload的 HTML 標籤
 export function generatePreloadTags(page: string): string {
-    const pageAssets = [...(SpecificPageAssets.get(page) || [])];
-    const allAssets = [...AllPageAssets, ...pageAssets];
+    const pageAssets = Array.from(AssetsMap.get(page) || []);
+    const allAssets = Array.from(AssetsMap.get('allpages') || []).concat(pageAssets);
 
+    // 回傳將資源轉為預加載HTML標籤的字串
     return allAssets
         .map(asset => `<link rel="preload" href="${asset.path}" as="${asset.type}" />`).join('\n');
 }

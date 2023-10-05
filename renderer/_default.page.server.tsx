@@ -17,6 +17,7 @@ export { render };
 export const passToClient = ["pageProps", "urlPathname"];
 
 async function render(pageContext: PageContextServer) {
+
 	const { Page, pageProps } = pageContext;
 	const pageHtml = ReactDOMServer.renderToString(
 		<PageShell pageContext={pageContext}>

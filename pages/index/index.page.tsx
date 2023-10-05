@@ -16,7 +16,6 @@ export const PrefetchSetting = { mode: "hover" };
 const IslandCounter = Island(Counter);
 const IslandAccumulator = Island(Accumulator);
 
-console.log('index')
 preloadAsset(["/artificial-island.jpg", "/vike-vertical.svg", '/island.jpg'], '/', 'image')
 
 function Page() {

@@ -4,7 +4,6 @@ import DocSorter from './DocSorter'
 import './code.css'
 import { preloadAsset } from "#/renderer/preloadAssets";
 
-console.log('about')
 // 可以一次指定不同型態的資源
 preloadAsset(
 	[{ path: '/island.jpg', type: 'image' },
