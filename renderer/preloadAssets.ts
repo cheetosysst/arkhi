@@ -1,29 +1,57 @@
 type AssetType = 'audio' | 'document' | 'embed' | 'fetch' | 'font' | 'image' | 'object' | 'script' | 'style' | 'track' | 'worker' | 'video';
+type declareAsset = { path: string, type: AssetType };
+type AssetPath = string | Array<string> | Array<declareAsset>;
 
-const globalPreloadAssets = new Set<{ path: string, type: AssetType }>();
-const pagePreloadAssets = new Map<string, Set<{ path: string, type: AssetType }>>();
+const AllPageAssets = new Set<declareAsset>();
+const SpecificPageAssets = new Map<string, Set<declareAsset>>();
+
 
 export function preloadAsset(
-    page: string,
-    paths: Array<{ path: string; hint: boolean; type: AssetType }>,
-    global: boolean
+    paths: AssetPath,
+    page: string = 'allpages',
+    assetType?: AssetType,
 ) {
-    const assetsSet = global ? globalPreloadAssets : getPageAssetsSet(page);
-    paths.forEach(asset => {
-        assetsSet.add(asset);
-    });
-}
+    const assetsSet = page === 'allpages' ? AllPageAssets : getPageAssetSet(page);
 
-function getPageAssetsSet(page: string): Set<{ path: string, type: AssetType }> {
-    if (!pagePreloadAssets.has(page)) {
-        pagePreloadAssets.set(page, new Set());
+    if (assetType && typeof paths === 'string') {
+        if (!assetExists(paths, assetsSet)) {
+            assetsSet.add({ path: paths, type: assetType });
+        }
+    } else if (assetType && typeof paths[0] === 'string') {
+        (paths as string[]).forEach(path => {
+            if (!assetExists(path, assetsSet)) {
+                assetsSet.add({ path, type: assetType });
+            }
+        });
+    } else {
+        (paths as Array<declareAsset>).forEach(asset => {
+            if (!assetExists(asset.path, assetsSet)) {
+                assetsSet.add(asset);
+            }
+        });
     }
-    return pagePreloadAssets.get(page)!;
 }
 
-export function getPreloadTags(page: string): string {
-    const pageAssets = [...(pagePreloadAssets.get(page) || [])];
-    const allAssets = [...globalPreloadAssets, ...pageAssets];
+function assetExists(path: string, assetsSet: Set<declareAsset>): boolean {
+    for (const asset of assetsSet) {
+        if (asset.path === path) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function getPageAssetSet(page: string): Set<declareAsset> {
+    if (!SpecificPageAssets.has(page)) {
+        SpecificPageAssets.set(page, new Set());
+    }
+    return SpecificPageAssets.get(page)!;
+}
+
+export function generatePreloadTags(page: string): string {
+    const pageAssets = [...(SpecificPageAssets.get(page) || [])];
+    const allAssets = [...AllPageAssets, ...pageAssets];
 
     return allAssets
         .map(asset => `<link rel="preload" href="${asset.path}" as="${asset.type}" />`).join('\n');
