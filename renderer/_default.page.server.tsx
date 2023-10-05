@@ -25,6 +25,7 @@ async function render(pageContext: PageContextServer) {
 		</PageShell>
 	);
 
+	//根據目前頁面獲得HTML標籤的字串，將之插入headHTML
 	const preloadTags = generatePreloadTags(pageContext.urlPathname);
 	const headHtml = ReactDOMServer.renderToString(
 		<>
