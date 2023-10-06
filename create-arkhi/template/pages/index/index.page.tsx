@@ -1,8 +1,8 @@
 import React from "react";
 import Counter from "./Counter";
 
-import { Island } from "#/arkhi/client";
-import { Head } from "#/arkhi/client";
+import { Island } from "arkhi/client";
+import { Head } from "arkhi/client";
 
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
@@ -23,7 +23,6 @@ function Page() {
 			<p>
 				Interactive. <CounterIsland temp="Candy" />
 			</p>
-			<CallerIsland />
 		</>
 	);
 }

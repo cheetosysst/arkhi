@@ -3,7 +3,7 @@ import logo from "/logo.svg";
 import { PageContextProvider } from "./usePageContext";
 import type { PageContext } from "./types";
 import "./PageShell.css";
-import { ArkhiProvider, Link } from "#/arkhi/client";
+import { ArkhiProvider, Link } from "arkhi/client";
 
 export { PageShell };
 

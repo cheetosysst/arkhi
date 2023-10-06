@@ -1,5 +1,5 @@
-import { createTRPCRouter } from "#/api/trpc.js";
-import { helloRouter } from "#/api/hello.js";
+import { createTRPCRouter } from "./trpc.js";
+import { helloRouter } from "./hello.js";
 
 /**
  * Default router entry point.

@@ -1,9 +1,9 @@
 import ReactDOMServer from "react-dom/server";
 import React from "react";
-import { PageShell } from "./PageShell";
+import { PageShell } from "./PageShell.js";
 import { escapeInject, dangerouslySkipEscape } from "vike/server";
-import type { PageContextServer } from "./types";
-import { IslandProps } from "#/arkhi/client";
+import type { PageContextServer } from "./types.js";
+import { IslandProps } from "arkhi/client";
 import SuperJSON from "superjson";
 
 export { render };
