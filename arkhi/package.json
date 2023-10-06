@@ -1,9 +1,9 @@
 {
   "name": "arkhi",
-  "version": "0.1.12",
+  "version": "0.1.21",
   "description": "Island architecture based meta framework",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,20 +17,57 @@
   },
   "homepage": "https://github.com/cheetosysst/arkhi#readme",
   "files": [
-    "client",
-    "server",
-    "plugins",
-    "tsconfig.json",
+    "dist",
+    "LICENSE",
     "README.md"
   ],
+  "contributors": [
+    {
+      "name": "Nechled",
+      "url": "https://github.com/Nechled"
+    },
+    {
+      "name": "amyD0947639",
+      "url": "https://github.com/amyD0947639"
+    }
+  ],
   "exports": {
-    "./arkhi/client": "./client/index.tsx",
-    "./arkhi/server": "./server/index.ts",
-    "./arkhi/plugins": "./plugins/index.ts"
+    "./arkhi/client": {
+      "main": "./dist/client/index.js",
+      "default": "./dist/client/index.js",
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts",
+      "node": "./dist/client/index.js"
+    },
+    "./arkhi/server": {
+      "main": "./dist/server/index.js",
+      "default": "./dist/server/index.js",
+      "import": "./dist/server/index.js",
+      "types": "./dist/server/index.d.ts",
+      "node": "./dist/server/index.js"
+    },
+    "./arkhi/plugins": {
+      "default": "./dist/plugins/index.js",
+      "main": "./dist/plugins/index.js",
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "node": "./dist/plugins/index.js"
+    }
   },
   "type": "module",
-  "devDependencies": {
-    "@types/node": "^20.8.2",
-    "typescript": "^5.2.2"
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^2.3.0",
+    "@trpc/client": "^10.38.5",
+    "@trpc/server": "^10.38.5",
+    "compression": "^1.7.4",
+    "express": "^4.18.2",
+    "gray-matter": "^4.0.3",
+    "vike": "^0.4.142",
+    "vite": "^4.4.11",
+    "zod": "^3.22.4"
   }
 }

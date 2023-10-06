@@ -1,4 +1,5 @@
 import React from "react";
+// @ts-ignore
 import { prefetch as vitePrefech } from "vike/client/router";
 
 type PrefetchMode = "hover" | "visible" | "page" | "nested";
