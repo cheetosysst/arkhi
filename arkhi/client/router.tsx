@@ -1,8 +1,6 @@
-
-import React from "react";
+import React, { MouseEvent, PropsWithChildren } from "react";
 import { prefetch as vitePrefech } from "vike/client/router";
 import { Island } from "./island";
-import React, { MouseEvent, PropsWithChildren } from "react";
 
 declare global {
 	interface Window {
@@ -20,7 +18,9 @@ export class ClientRouter {
 		PrefetchSetting
 	>();
 	public setting: PrefetchSetting = { mode: "visible" };
-	private observer: IntersectionObserver = new IntersectionObserver(this.observerCallback);
+	private observer: IntersectionObserver = new IntersectionObserver(
+		this.observerCallback
+	);
 	private render: Function;
 
 	constructor(render: Function, setting: PrefetchSetting) {
@@ -35,9 +35,12 @@ export class ClientRouter {
 
 	public getPath(url: string | null | undefined) {
 		return new URL(url || "", location.origin).pathname;
-	};
+	}
 
-	private observerCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
+	private observerCallback(
+		entries: IntersectionObserverEntry[],
+		observer: IntersectionObserver
+	): void {
 		const clientRouter = import.meta.env.SSR ? this : window.clientRouter;
 		entries.forEach(async (entry: IntersectionObserverEntry) => {
 			const path = clientRouter.getPath(
@@ -107,10 +110,9 @@ export class ClientRouter {
 		});
 	}
 
-	private prefetchNested(dom: Document, href:string, layer: number): void {
+	private prefetchNested(dom: Document, href: string, layer: number): void {
 		const pageSetting =
-			this.pageSettingMap.get(this.getPath(href)) ||
-			this.setting;
+			this.pageSettingMap.get(this.getPath(href)) || this.setting;
 		if (pageSetting.mode !== "nested") return;
 
 		dom.querySelectorAll("a").forEach(async (element) => {
@@ -129,12 +131,12 @@ export class ClientRouter {
 				const parser = new DOMParser();
 				const html = parser.parseFromString(htmlString, "text/html");
 				const PrefetchSettingJson =
-				html
-				.getElementById("prefetch-setting")
-				?.getAttribute("data-setting") || "";
+					html
+						.getElementById("prefetch-setting")
+						?.getAttribute("data-setting") || "";
 				const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 				PrefetchSetting &&
-				this.setPagePrefetchRule(path, PrefetchSetting);
+					this.setPagePrefetchRule(path, PrefetchSetting);
 
 				this.prefetchNested(html, path, layer + 1);
 			} catch (error: any) {
@@ -173,13 +175,12 @@ export class ClientRouter {
 					.getElementById("prefetch-setting")
 					?.getAttribute("data-setting") || "";
 
-
 			//This is hack to script force injection. Ref: https://stackoverflow.com/questions/1197575/can-scripts-be-inserted-with-innerhtml
-			var g = document.createElement('script');
-			var s = document.getElementsByTagName('script')[0];
-			g.text = html.body.getElementsByTagName("script")[0].textContent || "";
+			var g = document.createElement("script");
+			var s = document.getElementsByTagName("script")[0];
+			g.text =
+				html.body.getElementsByTagName("script")[0].textContent || "";
 			s.parentNode?.insertBefore(g, s);
-
 
 			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 			PrefetchSetting && this.setPagePrefetchRule(path, PrefetchSetting);
@@ -226,7 +227,10 @@ export class ClientRouter {
 		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 
 		PrefetchSetting &&
-			this.setPagePrefetchRule(this.getPath(document.location.href), PrefetchSetting);
+			this.setPagePrefetchRule(
+				this.getPath(document.location.href),
+				PrefetchSetting
+			);
 
 		this.prefetchVisible();
 		this.prefetchPage();
@@ -247,8 +251,9 @@ const Link_ = ({
 }: PropsWithChildren & { className?: string; href: string }) => {
 	const clientRouter = import.meta.env.SSR ? null : window.clientRouter;
 	const pageSetting =
-		clientRouter?.pageSettingMap.get(clientRouter.getPath(window.location.href)) ||
-		clientRouter?.setting;
+		clientRouter?.pageSettingMap.get(
+			clientRouter.getPath(window.location.href)
+		) || clientRouter?.setting;
 	const isSettingHover = pageSetting?.mode === "hover";
 
 	const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {

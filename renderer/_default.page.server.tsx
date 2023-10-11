@@ -6,6 +6,12 @@ import type { PageContextServer } from "./types";
 import { IslandProps } from "#/arkhi/client";
 import SuperJSON from "superjson";
 
+import { PageHeads } from "#/arkhi/client/Head";
+
+import { generatePreloadTags, preloadAsset } from "#/arkhi/client/preload";
+
+preloadAsset("/islands-architecture-1.png", "allpages", "image");
+
 export { render };
 // See https://vike.dev/data-fetching
 export const passToClient = ["pageProps", "urlPathname"];
@@ -17,7 +23,15 @@ async function render(pageContext: PageContextServer) {
 			<Page {...pageProps} />
 		</PageShell>
 	);
-	const headHtml = ReactDOMServer.renderToString(<>{pageContext.Head}</>);
+
+	//根據目前頁面獲得HTML標籤的字串，將之插入headHTML
+	const preloadTags = generatePreloadTags(pageContext.urlPathname);
+	const headHtml = ReactDOMServer.renderToString(
+		<>
+			{PageHeads}
+			{preloadTags}
+		</>
+	);
 
 	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
@@ -37,7 +51,9 @@ async function render(pageContext: PageContextServer) {
 			PrefetchSetting || ""
 		)}></div>
         <script>
-					var prefetchSetting = '${dangerouslySkipEscape(JSON.stringify(PrefetchSetting || ""))}'
+					var prefetchSetting = '${dangerouslySkipEscape(
+						JSON.stringify(PrefetchSetting || "")
+					)}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
       </body>
