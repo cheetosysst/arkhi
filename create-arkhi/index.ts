@@ -3,9 +3,9 @@ import { argv } from "process";
 import path from "path";
 
 const templateDirectory = path.join(
-	path.parse(new URL(import.meta.url).pathname).dir,
+	(path.parse(new URL(import.meta.url).pathname).dir).replace(/^[\/\\]/, ''),
 	"template"
-);
+	);
 
 function createSpinner(message: string) {
 	const spinners = ["-", "\\", "|", "/"];
