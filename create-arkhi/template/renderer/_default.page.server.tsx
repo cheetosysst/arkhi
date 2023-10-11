@@ -1,40 +1,23 @@
 import ReactDOMServer from "react-dom/server";
 import React from "react";
-import { PageShell } from "./PageShell";
+import { PageShell } from "./PageShell.js";
 import { escapeInject, dangerouslySkipEscape } from "vike/server";
-import type { PageContextServer } from "./types";
-import { IslandProps } from "#/arkhi/client";
+import type { PageContextServer } from "./types.js";
+import { IslandProps } from "arkhi/client";
 import SuperJSON from "superjson";
-
-import { PageHeads } from "#/arkhi/client/Head";
-
-import { generatePreloadTags, preloadAsset } from "#/renderer/preloadAssets";
-
-preloadAsset('/islands-architecture-1.png', 'allpages', 'image')
 
 export { render };
 // See https://vike.dev/data-fetching
 export const passToClient = ["pageProps", "urlPathname"];
 
 async function render(pageContext: PageContextServer) {
-
 	const { Page, pageProps } = pageContext;
 	const pageHtml = ReactDOMServer.renderToString(
 		<PageShell pageContext={pageContext}>
 			<Page {...pageProps} />
 		</PageShell>
 	);
-
-	//根據目前頁面獲得HTML標籤的字串，將之插入headHTML
-	const preloadTags = generatePreloadTags(pageContext.urlPathname);
-	const headHtml = ReactDOMServer.renderToString(
-		<>
-			{PageHeads}
-			{preloadTags && (
-				<div dangerouslySetInnerHTML={{ __html: preloadTags }} />
-			)}
-		</>
-	);
+	const headHtml = ReactDOMServer.renderToString(<>{pageContext.Head}</>);
 
 	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
@@ -51,10 +34,9 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-		PrefetchSetting || ""
-	)}></div>
+			PrefetchSetting || ""
+		)}></div>
         <script>
-					var prefetchSetting = '${dangerouslySkipEscape(JSON.stringify(PrefetchSetting || ""))}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
       </body>

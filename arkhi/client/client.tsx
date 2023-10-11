@@ -1,7 +1,8 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-import { IslandMap } from "./island";
+import { IslandMap } from "./island.js";
 import superjson from "superjson";
+import { Link } from "./router";
 
 declare global {
 	interface Window {
@@ -20,10 +21,34 @@ const populate = (parent: Element, component: JSX.Element) => {
 	});
 };
 
+const kebabToCamel = (str: string) => {
+	return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+};
+
+const stringToStyle = (styleString: string): Record<string, string> => {
+	const styleArray = styleString.split(';').filter(Boolean); // Split the string by semicolon and remove empty elements
+	const styleObject = new Map<string, any>();
+
+	for (const style of styleArray) {
+		const [property, value] = style.split(':').map((str) => str.trim()); // Split each property-value pair
+		styleObject.set(kebabToCamel(property), value); // Use type assertion as any
+	}
+
+	return Object.fromEntries(styleObject);
+};
+
 const attributesMap = (attributes: NamedNodeMap) => {
-	const map = new Map<string, string>();
+	const map = new Map<string, any>();
 	for (const item of attributes) {
-		map.set(item.name, item.value);
+		let name: string = item.name;
+		let value: any = item.value;
+		if (name === 'style') {
+			value = stringToStyle(item.value);
+		}
+		if (name === 'class') {
+			name = 'className';
+		}
+		map.set(name, value);
 	}
 	return map;
 };
@@ -63,16 +88,23 @@ const explore = (parentNode: Node) => {
 		}
 
 		const childTree = explore(currentNode);
+
+		if (currentNode.nodeName === "A") {
+			siblings.push(<Link href={(currentNode as HTMLAnchorElement).href} {...attributes}>{childTree.props.children.length ? childTree : undefined}</Link>);
+			currentNode = currentNode.nextSibling as Node;
+			continue;
+		}
+
 		const component = childTree.props.children.length
 			? React.createElement(
-					currentNode.nodeName.toLowerCase(),
-					Object.fromEntries(attributes),
-					childTree
-			  )
+				currentNode.nodeName.toLowerCase(),
+				Object.fromEntries(attributes),
+				childTree
+			)
 			: React.createElement(
-					currentNode.nodeName.toLowerCase(),
-					Object.fromEntries(attributes)
-			  );
+				currentNode.nodeName.toLowerCase(),
+				Object.fromEntries(attributes)
+			);
 
 		siblings.push(component);
 		currentNode = currentNode.nextSibling as Node;

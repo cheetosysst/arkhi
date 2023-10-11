@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Island } from "#/arkhi/client";
-import { allFiles as allMdxFiles } from "../../content/*";
+import { allFiles as allMdxFiles } from "../../content/*.markdown";
 
 function MdxContentRenderer_({ ...props }) {
 	const [selectedTag, setSelectedTag] = useState("");
@@ -13,11 +13,11 @@ function MdxContentRenderer_({ ...props }) {
 	useEffect(() => {
 		const updatedFiles = selectedTag
 			? allMdxFiles.filter((file) => {
-					const hasTag = file.metadata.tags
-						.flat()
-						.includes(selectedTag);
-					return hasTag;
-			  })
+				const hasTag = file.metadata.tags
+					.flat()
+					.includes(selectedTag);
+				return hasTag;
+			})
 			: allMdxFiles;
 		setDisplayFiles(updatedFiles);
 	}, [selectedTag]);

@@ -1,1 +1,1 @@
-export * from './arkhi-plugin'
+export * from "./arkhi-plugin.js";
