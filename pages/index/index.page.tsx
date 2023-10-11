@@ -8,7 +8,7 @@ import { ColorChanger } from "../about/Component";
 import { Head } from "#/arkhi/client";
 
 import ShowState from "../ShowImage";
-import { preloadAsset } from "#/renderer/preloadAssets";
+import { preloadAsset } from "#/arkhi/client/preload";
 
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
@@ -16,10 +16,13 @@ export const PrefetchSetting = { mode: "hover" };
 const IslandCounter = Island(Counter);
 const IslandAccumulator = Island(Accumulator);
 
-preloadAsset(["/artificial-island.jpg", "/vike-vertical.svg", '/island.jpg'], '/', 'image')
+preloadAsset(
+	["/artificial-island.jpg", "/vike-vertical.svg", "/island.jpg"],
+	"/",
+	"image"
+);
 
 function Page() {
-
 	return (
 		<>
 			<Head>

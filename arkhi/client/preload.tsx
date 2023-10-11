@@ -62,7 +62,12 @@ export function generatePreloadTags(page: string) {
 	);
 
 	// 回傳將資源轉為預加載HTML標籤的字串
-	return allAssets.map((asset) => (
-		<link rel="preload" href={asset.path} as={asset.type} />
+	return allAssets.map((asset, index) => (
+		<link
+			rel="preload"
+			key={`${index}${asset.path}`}
+			href={asset.path}
+			as={asset.type}
+		/>
 	));
 }

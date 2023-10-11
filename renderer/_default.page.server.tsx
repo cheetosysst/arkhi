@@ -8,7 +8,7 @@ import SuperJSON from "superjson";
 
 import { PageHeads } from "#/arkhi/client/Head";
 
-import { generatePreloadTags, preloadAsset } from "#/renderer/preloadAssets";
+import { generatePreloadTags, preloadAsset } from "#/arkhi/client/preload";
 
 preloadAsset("/islands-architecture-1.png", "allpages", "image");
 
