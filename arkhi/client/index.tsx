@@ -1,12 +1,12 @@
 import React from "react";
 import type { PropsWithChildren } from "react";
-import { HeadProvider } from "./Head";
+import { HeadProvider } from "./Head.js";
 
-export * from "./router";
-export * from "./island";
-export * from "./client";
+export * from "./router.js";
+export * from "./island.js";
+export * from "./client.js";
 
-export { Head } from "./Head";
+export { Head } from "./Head.js";
 export function ArkhiProvider({ children }: PropsWithChildren) {
 	return <HeadProvider>{children}</HeadProvider>;
 }

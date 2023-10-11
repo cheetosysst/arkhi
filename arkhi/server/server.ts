@@ -2,7 +2,6 @@ import compression from "compression";
 import express from "express";
 import { renderPage } from "vike/server";
 import { applyMiddleware } from "./middleware.js";
-import * as trpcExpress from "@trpc/server/adapters/express";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -28,14 +27,6 @@ export async function startServer() {
 
 	applyMiddleware(app);
 
-	// app.use(
-	// 	"/trpc",
-	// 	trpcExpress.createExpressMiddleware({
-	// 		router: appRouters,
-	// 		createContext,
-	// 	})
-	// );
-
 	app.get("*", async (req, res, next) => {
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
@@ -45,10 +36,11 @@ export async function startServer() {
 		if (!httpResponse) return next();
 
 		const { body, statusCode, headers, earlyHints } = httpResponse;
-		if (res.writeEarlyHints)
+		if (res.writeEarlyHints) {
 			res.writeEarlyHints({
 				link: earlyHints.map((e) => e.earlyHintLink),
 			});
+		}
 		headers.forEach(([name, value]) => res.setHeader(name, value));
 		res.status(statusCode);
 		res.send(body);

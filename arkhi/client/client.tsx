@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
-import { IslandMap } from "./island";
+import { IslandMap } from "./island.js";
 import superjson from "superjson";
 import { Link } from "./router";
 
