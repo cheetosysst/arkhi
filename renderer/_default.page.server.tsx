@@ -10,14 +10,13 @@ import { PageHeads } from "#/arkhi/client/Head";
 
 import { generatePreloadTags, preloadAsset } from "#/renderer/preloadAssets";
 
-preloadAsset('/islands-architecture-1.png', 'allpages', 'image')
+preloadAsset("/islands-architecture-1.png", "allpages", "image");
 
 export { render };
 // See https://vike.dev/data-fetching
 export const passToClient = ["pageProps", "urlPathname"];
 
 async function render(pageContext: PageContextServer) {
-
 	const { Page, pageProps } = pageContext;
 	const pageHtml = ReactDOMServer.renderToString(
 		<PageShell pageContext={pageContext}>
@@ -30,9 +29,7 @@ async function render(pageContext: PageContextServer) {
 	const headHtml = ReactDOMServer.renderToString(
 		<>
 			{PageHeads}
-			{preloadTags && (
-				<div dangerouslySetInnerHTML={{ __html: preloadTags }} />
-			)}
+			{preloadTags}
 		</>
 	);
 
@@ -51,10 +48,12 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-		PrefetchSetting || ""
-	)}></div>
+			PrefetchSetting || ""
+		)}></div>
         <script>
-					var prefetchSetting = '${dangerouslySkipEscape(JSON.stringify(PrefetchSetting || ""))}'
+					var prefetchSetting = '${dangerouslySkipEscape(
+						JSON.stringify(PrefetchSetting || "")
+					)}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
       </body>
