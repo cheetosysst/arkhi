@@ -1,19 +1,26 @@
+
 import React from "react";
-// @ts-ignore
 import { prefetch as vitePrefech } from "vike/client/router";
+import { Island } from "./island";
+import React, { MouseEvent, PropsWithChildren } from "react";
+
+declare global {
+	interface Window {
+		clientRouter: ClientRouter;
+	}
+}
 
 type PrefetchMode = "hover" | "visible" | "page" | "nested";
 type PrefetchSetting = { mode?: PrefetchMode };
 export class ClientRouter {
-	private prefetched: Set<String> = new Set<String>();
+	private prefetched: Set<string> = new Set<string>();
 
-	private pageSettingMap: Map<String, PrefetchSetting> = new Map<
-		String,
+	public pageSettingMap: Map<string, PrefetchSetting> = new Map<
+		string,
 		PrefetchSetting
 	>();
-	private setting: PrefetchSetting = { mode: "visible" };
-	// @ts-ignore
-	private observer: IntersectionObserver;
+	public setting: PrefetchSetting = { mode: "visible" };
+	private observer: IntersectionObserver = new IntersectionObserver(this.observerCallback);
 	private render: Function;
 
 	constructor(render: Function, setting: PrefetchSetting) {
@@ -26,166 +33,114 @@ export class ClientRouter {
 		}
 	}
 
-	private createLink: any = (url: string): void => {
-		// //create link for prefatch
-		// const linkElement = document.createElement("link");
-		// linkElement.rel = "prefetch";
-		// linkElement.href = url;
-		// linkElement.as = "document";
-
-		// linkElement.onerror = (err) =>
-		// 	console.error("prefetched error", url, err);
-
-		// document.head.appendChild(linkElement);
-
-		const href = new URL(url, location.origin).href;
-		this.prefetched.add(href);
+	public getPath(url: string | null | undefined) {
+		return new URL(url || "", location.origin).pathname;
 	};
 
-	private async prefetchHover(
-		element: HTMLTextAreaElement
-	): Promise<Boolean> {
-		const href: string = new URL(
-			element.getAttribute("href") || "",
-			location.origin
-		).href;
+	private observerCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
+		const clientRouter = import.meta.env.SSR ? this : window.clientRouter;
+		entries.forEach(async (entry: IntersectionObserverEntry) => {
+			const path = clientRouter.getPath(
+				entry.target.getAttribute("href")
+			);
 
-		if (this.prefetched.has(href)) {
+			if (clientRouter.prefetched.has(path)) {
+				observer.unobserve(entry.target);
+				return;
+			}
+
+			if (entry.isIntersecting) {
+				clientRouter.prefetched.add(path);
+				await vitePrefech(path);
+				observer.unobserve(entry.target);
+			}
+		});
+	}
+
+	public async prefetchHover(element: HTMLAnchorElement): Promise<Boolean> {
+		const path = this.getPath(element.getAttribute("href"));
+
+		if (this.prefetched.has(path)) {
 			return true;
 		}
-		this.createLink(href);
 
-		await vitePrefech(element.getAttribute("href") || "");
+		this.prefetched.add(path);
+		await vitePrefech(path);
 		return true;
 	}
 
 	private prefetchVisible(): void {
-		const pageSetting = this.pageSettingMap.get(window.location.href);
-		if (
-			pageSetting?.mode
-				? pageSetting?.mode !== "visible"
-				: this.setting.mode !== "visible"
-		)
-			return;
+		const pageSetting =
+			this.pageSettingMap.get(this.getPath(window.location.href)) ||
+			this.setting;
+		if (pageSetting.mode !== "visible") return;
+
 		if ("IntersectionObserver" in window === false) return;
 		this.observer ||
-			(this.observer = new IntersectionObserver((entries, observer) => {
-				entries.forEach(async (entry) => {
-					const href: string = new URL(
-						entry.target.getAttribute("href") || "",
-						location.origin
-					).href;
-
-					if (this.prefetched.has(href)) {
-						observer.unobserve(entry.target);
-						return;
-					}
-
-					if (entry.isIntersecting) {
-						this.createLink(href);
-						await vitePrefech(
-							entry.target.getAttribute("href") || ""
-						);
-						observer.unobserve(entry.target);
-					}
-				});
-			}));
+			(this.observer = new IntersectionObserver(this.observerCallback));
 
 		Array.from(document.querySelectorAll("a"))
 			.filter((element) => {
-				return this.prefetched.has(element.href) === false;
+				const path = this.getPath(element.href);
+				return this.prefetched.has(path) === false;
 			})
-			.forEach((element) => this.observer.observe(element));
+			.forEach((element) => {
+				this.observer.observe(element);
+			});
 	}
-	private prefetchPage(): void {
-		const pageSetting = this.pageSettingMap.get(window.location.href);
-		if (
-			pageSetting?.mode
-				? pageSetting?.mode !== "page"
-				: this.setting.mode !== "page"
-		)
-			return;
-		document.querySelectorAll("a").forEach(async (element) => {
-			const href: string = new URL(
-				element.getAttribute("href") || "",
-				location.origin
-			).href;
 
-			if (this.prefetched.has(href)) {
+	private prefetchPage(): void {
+		const pageSetting =
+			this.pageSettingMap.get(this.getPath(window.location.href)) ||
+			this.setting;
+		if (pageSetting.mode !== "page") return;
+
+		document.querySelectorAll("a").forEach(async (element) => {
+			const path = this.getPath(element.getAttribute("href"));
+
+			if (this.prefetched.has(path)) {
 				return;
 			}
-			this.createLink(href);
-			await vitePrefech(element.getAttribute("href") || "");
+
+			this.prefetched.add(path);
+			await vitePrefech(path);
 		});
 	}
 
-	private prefetchNested(dom: Document, layer: number): void {
-		const pageSetting = this.pageSettingMap.get(dom.location.href);
-		if (
-			pageSetting?.mode
-				? pageSetting?.mode !== "nested"
-				: this.setting.mode !== "nested"
-		)
-			return;
+	private prefetchNested(dom: Document, href:string, layer: number): void {
+		const pageSetting =
+			this.pageSettingMap.get(this.getPath(href)) ||
+			this.setting;
+		if (pageSetting.mode !== "nested") return;
+
 		dom.querySelectorAll("a").forEach(async (element) => {
-			const href: string = new URL(
-				element.getAttribute("href") || "",
-				location.origin
-			).href;
-			if (this.prefetched.has(href)) {
+			const path = this.getPath(element.getAttribute("href"));
+
+			if (this.prefetched.has(path)) {
 				return;
 			}
 
-			this.createLink(href);
-			await vitePrefech(element.getAttribute("href") || "");
+			this.prefetched.add(path);
+			await vitePrefech(path);
+
 			try {
-				const response = await fetch(href);
+				const response = await fetch(path);
 				const htmlString = await response.text();
 				const parser = new DOMParser();
 				const html = parser.parseFromString(htmlString, "text/html");
 				const PrefetchSettingJson =
-					html
-						.getElementById("prefetch-setting")
-						?.getAttribute("data-setting") || "";
+				html
+				.getElementById("prefetch-setting")
+				?.getAttribute("data-setting") || "";
 				const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 				PrefetchSetting &&
-					this.setPagePrefetchRule(href, PrefetchSetting);
-				if (this.prefetched.has(href)) return;
-				this.prefetchNested(html, layer + 1);
+				this.setPagePrefetchRule(path, PrefetchSetting);
+
+				this.prefetchNested(html, path, layer + 1);
 			} catch (error: any) {
 				console.error("Fetch Error:", error, error.message);
 			}
 		});
-	}
-
-	private handleClientLinkBehavior(): void {
-		const pageSetting = this.pageSettingMap.get(window.location.href);
-		document.querySelectorAll("a").forEach((element) => {
-			if (
-				pageSetting?.mode
-					? pageSetting?.mode === "hover"
-					: this.setting.mode === "hover"
-			) {
-				element.addEventListener("mouseover", (event: MouseEvent) => {
-					event.preventDefault();
-					const target = event.target as HTMLTextAreaElement;
-					this.prefetchHover(target);
-				});
-			}
-
-			element.addEventListener("click", (event: MouseEvent) => {
-				event.preventDefault();
-				const target = event.target as HTMLTextAreaElement;
-				this.updatePageContext({
-					href: target.getAttribute("href") || "",
-					mode: "go",
-				});
-			});
-		});
-	}
-
-	private onPop(event: PopStateEvent): void {
-		this.updatePageContext({ href: window.location.href, mode: "back" });
 	}
 
 	private async updatePageContext({
@@ -197,15 +152,17 @@ export class ClientRouter {
 		mode: string;
 		data?: {};
 	}): Promise<boolean> {
+		const path = this.getPath(href);
+
 		try {
-			const response = await fetch(href);
+			const response = await fetch(path);
 			const htmlString = await response.text();
 
 			if (mode === "go") {
 				window.history.pushState(
-					{ prev: window.location.href },
+					{ prev: this.getPath(window.location.href) },
 					"",
-					href
+					path
 				);
 			}
 
@@ -215,12 +172,17 @@ export class ClientRouter {
 				html
 					.getElementById("prefetch-setting")
 					?.getAttribute("data-setting") || "";
+
+
+			//This is hack to script force injection. Ref: https://stackoverflow.com/questions/1197575/can-scripts-be-inserted-with-innerhtml
+			var g = document.createElement('script');
+			var s = document.getElementsByTagName('script')[0];
+			g.text = html.body.getElementsByTagName("script")[0].textContent || "";
+			s.parentNode?.insertBefore(g, s);
+
+
 			const PrefetchSetting = JSON.parse(PrefetchSettingJson);
-			PrefetchSetting &&
-				this.setPagePrefetchRule(
-					new URL(href, location.origin).href,
-					PrefetchSetting
-				);
+			PrefetchSetting && this.setPagePrefetchRule(path, PrefetchSetting);
 
 			document.body = html.body;
 
@@ -232,9 +194,16 @@ export class ClientRouter {
 		}
 	}
 
+	private onPop(event: PopStateEvent): void {
+		this.updatePageContext({
+			href: this.getPath(window.location.href),
+			mode: "back",
+		});
+	}
+
 	public go(path: string): Promise<boolean> {
-		const href = new URL(path, location.origin).href;
-		return this.updatePageContext({ href, mode: "go" });
+		path = this.getPath(path);
+		return this.updatePageContext({ href: path, mode: "go" });
 	}
 
 	public back(): void {
@@ -257,22 +226,55 @@ export class ClientRouter {
 		const PrefetchSetting = JSON.parse(PrefetchSettingJson);
 
 		PrefetchSetting &&
-			this.setPagePrefetchRule(document.location.href, PrefetchSetting);
+			this.setPagePrefetchRule(this.getPath(document.location.href), PrefetchSetting);
 
-		this.handleClientLinkBehavior();
 		this.prefetchVisible();
 		this.prefetchPage();
-		this.prefetchNested(document, 0);
+		this.prefetchNested(document, document.location.href, 0);
 	}
 
-	public setPagePrefetchRule(path: String, setting: PrefetchSetting): void {
+	public setPagePrefetchRule(path: string, setting: PrefetchSetting): void {
+		path = this.getPath(path);
 		this.pageSettingMap.get(path) || this.pageSettingMap.set(path, setting);
 	}
 }
 
-export { Link };
+const Link_ = ({
+	children,
+	className,
+	href,
+	...props
+}: PropsWithChildren & { className?: string; href: string }) => {
+	const clientRouter = import.meta.env.SSR ? null : window.clientRouter;
+	const pageSetting =
+		clientRouter?.pageSettingMap.get(clientRouter.getPath(window.location.href)) ||
+		clientRouter?.setting;
+	const isSettingHover = pageSetting?.mode === "hover";
 
-function Link({ ...props }) {
-	// const className = [props.className, pageContext.urlPathname === props.href && 'is-active'].filter(Boolean).join(' ')
-	return <a {...props} />;
-}
+	const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+		event.preventDefault();
+		const target = event.currentTarget;
+		clientRouter && clientRouter.go(target.getAttribute("href") || ""); // Adjust to get the href attribute
+	};
+
+	const handleMouseOver = (event: MouseEvent<HTMLAnchorElement>) => {
+		event.preventDefault();
+		const target = event.currentTarget;
+		clientRouter && clientRouter.prefetchHover(target);
+	};
+
+	return (
+		<a
+			onClick={clientRouter ? handleClick : undefined}
+			onMouseOver={isSettingHover ? handleMouseOver : undefined}
+			className={className ?? ""}
+			href={href}
+			{...props}
+		>
+			{children}
+		</a>
+	);
+};
+
+// export const Link = Link_;
+export const Link = Island(Link_);

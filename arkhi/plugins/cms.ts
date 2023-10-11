@@ -100,8 +100,8 @@ export default function arkhiCMS(): Plugin {
 				const resolvedId = source.replace('*.mdx', '@virtual-mdx-files');
 				return resolvedId;
 			}
-			else if (source.endsWith('*')) {
-				const resolvedId = source.replace('*', '@virtual-files');
+			else if (source.endsWith('*.markdown')) {
+				const resolvedId = source.replace('*.markdown', '@virtual-files');
 				return resolvedId;
 			}
 		},

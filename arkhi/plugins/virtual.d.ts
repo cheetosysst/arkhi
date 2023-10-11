@@ -31,9 +31,9 @@ declare module "*.md" {
 	export default MDXComponent;
 }
 
-// declare module "*" {
-// 	let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
-// 	export const metadata: MDXMetadata;
-// 	export const allFiles: MDXFile[];
-// 	export default MDXComponent;
-// }
+declare module "*.markdown" {
+	let MDXComponent: (props: PropsWithChildren<any>) => JSX.Element;
+	export const metadata: MDXMetadata;
+	export const allFiles: MDXFile[];
+	export default MDXComponent;
+}
