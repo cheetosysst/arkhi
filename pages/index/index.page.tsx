@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React from "react";
 import Counter from "./Counter";
 import Accumulator from "./Accumulator";
 import CallerIsland from "./Caller";
@@ -8,7 +8,7 @@ import { ColorChanger } from "../about/Component";
 import { Head } from "#/arkhi/client";
 
 import ShowState from "../ShowImage";
-import { preloadAsset } from "#/arkhi/client/preload";
+import { usePreload } from "#/arkhi/client/preload";
 
 export { Page };
 export const PrefetchSetting = { mode: "hover" };
@@ -16,13 +16,8 @@ export const PrefetchSetting = { mode: "hover" };
 const IslandCounter = Island(Counter);
 const IslandAccumulator = Island(Accumulator);
 
-preloadAsset(
-	["/artificial-island.jpg", "/vike-vertical.svg", "/island.jpg"],
-	"/",
-	"image"
-);
-
 function Page() {
+	usePreload(["/artificial-island.jpg", "/vike-vertical.svg"], "image");
 	return (
 		<>
 			<Head>
