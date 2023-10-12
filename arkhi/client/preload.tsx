@@ -14,27 +14,27 @@ type AssetType =
 	| "worker"
 	| "video";
 
-type DeclareAsset = { path: string; type: AssetType };
-type AssetPath = string | Array<string> | Array<DeclareAsset>;
+type Asset = { path: string; type: AssetType };
+type AssetPath = string | Array<string> | Array<Asset>;
 
-const assetsSet = new Set<DeclareAsset>();
-const PreloadContext = createContext(assetsSet);
+const assets = new Set<Asset>();
+const PreloadContext = createContext(assets);
 
 export function PreloadProvider({ children }: PropsWithChildren) {
 	return (
-		<PreloadContext.Provider value={assetsSet}>
+		<PreloadContext.Provider value={assets}>
 			{children}
 		</PreloadContext.Provider>
 	);
 }
 // 取得資源的路徑和資源的類型（可選）
 export function usePreload(paths: AssetPath, assetType?: AssetType) {
-	assetsSet.clear(); // 每次使用usePreload就將之前儲存的內容清空
+	assets.clear(); // 每次使用usePreload就將之前儲存的內容清空
 	const contextAssetsSet = useContext(PreloadContext);
 
 	// 將資源的路徑存進AssetsSet裡
 	if (assetType === undefined) {
-		(paths as Array<DeclareAsset>).forEach((asset) => {
+		(paths as Array<Asset>).forEach((asset) => {
 			contextAssetsSet.add(asset);
 		});
 		return;
@@ -54,7 +54,7 @@ export function usePreload(paths: AssetPath, assetType?: AssetType) {
 }
 // 生成preload的 HTML 標籤
 export function generatePreloadTags() {
-	return Array.from(assetsSet).map((asset, index) => (
+	return Array.from(assets).map((asset, index) => (
 		<link
 			rel="preload"
 			key={`${index}${asset.path}`}
@@ -65,5 +65,5 @@ export function generatePreloadTags() {
 }
 // 清除assetsSet
 export function clearAssetSet() {
-	assetsSet.clear();
+	assets.clear();
 }
