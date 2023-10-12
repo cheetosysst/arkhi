@@ -8,9 +8,7 @@ import SuperJSON from "superjson";
 
 import { PageHeads } from "#/arkhi/client/Head";
 
-import { generatePreloadTags, preloadAsset } from "#/arkhi/client/preload";
-
-preloadAsset("/islands-architecture-1.png", "allpages", "image");
+import { generatePreloadTags, clearAssetSet } from "#/arkhi/client/preload";
 
 export { render };
 // See https://vike.dev/data-fetching
@@ -25,7 +23,7 @@ async function render(pageContext: PageContextServer) {
 	);
 
 	//根據目前頁面獲得HTML標籤的字串，將之插入headHTML
-	const preloadTags = generatePreloadTags(pageContext.urlPathname);
+	const preloadTags = generatePreloadTags();
 	const headHtml = ReactDOMServer.renderToString(
 		<>
 			{PageHeads}
@@ -36,7 +34,7 @@ async function render(pageContext: PageContextServer) {
 	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
 	IslandProps.clear();
-
+	clearAssetSet()
 	const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
 		<head>
@@ -48,12 +46,12 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-			PrefetchSetting || ""
-		)}></div>
+		PrefetchSetting || ""
+	)}></div>
         <script>
 					var prefetchSetting = '${dangerouslySkipEscape(
-						JSON.stringify(PrefetchSetting || "")
-					)}'
+		JSON.stringify(PrefetchSetting || "")
+	)}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
       </body>
