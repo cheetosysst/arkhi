@@ -9,7 +9,9 @@ export * from "./client.js";
 
 export { Head } from "./Head.js";
 export function ArkhiProvider({ children }: PropsWithChildren) {
-	return <HeadProvider>
-		<PreloadProvider>{children}</PreloadProvider>
-	</HeadProvider>;
+	return (
+		<HeadProvider>
+			<PreloadProvider>{children}</PreloadProvider>
+		</HeadProvider>
+	);
 }

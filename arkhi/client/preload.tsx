@@ -29,7 +29,7 @@ export function PreloadProvider({ children }: PropsWithChildren) {
 }
 // 取得資源的路徑和資源的類型（可選）
 export function usePreload(paths: AssetPath, assetType?: AssetType) {
-	assetsSet.clear()// 每次使用usePreload就將之前儲存的內容清空
+	assetsSet.clear(); // 每次使用usePreload就將之前儲存的內容清空
 	const contextAssetsSet = useContext(PreloadContext);
 
 	// 將資源的路徑存進AssetsSet裡
@@ -65,5 +65,5 @@ export function generatePreloadTags() {
 }
 // 清除assetsSet
 export function clearAssetSet() {
-	assetsSet.clear()
+	assetsSet.clear();
 }

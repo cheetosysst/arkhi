@@ -34,7 +34,7 @@ async function render(pageContext: PageContextServer) {
 	const { PrefetchSetting } = pageContext.exports;
 	const propString = SuperJSON.stringify(Object.fromEntries(IslandProps));
 	IslandProps.clear();
-	clearAssetSet()
+	clearAssetSet();
 	const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
 		<head>
@@ -46,12 +46,12 @@ async function render(pageContext: PageContextServer) {
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <div id="prefetch-setting" data-setting = ${JSON.stringify(
-		PrefetchSetting || ""
-	)}></div>
+			PrefetchSetting || ""
+		)}></div>
         <script>
 					var prefetchSetting = '${dangerouslySkipEscape(
-		JSON.stringify(PrefetchSetting || "")
-	)}'
+						JSON.stringify(PrefetchSetting || "")
+					)}'
           var propString = '${dangerouslySkipEscape(propString || "")}'
         </script>
       </body>
