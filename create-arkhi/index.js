@@ -1,13 +1,12 @@
-import fs from "fs";
-import { argv } from "process";
-import path from "path";
+#!/usr/bin/env node
 
-const templateDirectory = path.join(
-	path.parse(new URL(import.meta.url).pathname).dir,
-	"template"
-);
+const fs = require("fs");
+const path = require("path");
+const { argv } = require("process");
 
-function createSpinner(message: string) {
+const templateDirectory = path.join(__dirname, "template");
+
+function createSpinner(message) {
 	const spinners = ["-", "\\", "|", "/"];
 	let i = 0;
 
@@ -30,7 +29,7 @@ function createSpinner(message: string) {
 
 async function main() {
 	console.log("🏝️ Generateing Arkhi application boilerplate");
-	const fse = (await import("fs-extra")).default;
+	const fse = require("fs-extra");
 
 	if (argv.length < 3) {
 		throw new Error("Please specify target directory.");
