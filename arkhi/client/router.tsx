@@ -1,6 +1,5 @@
 import React, { MouseEvent, PropsWithChildren } from "react";
-import { prefetch as vitePrefech } from "vike/client/router";
-import { Island } from "./island";
+import { Island } from "./island.js";
 
 declare global {
 	interface Window {
@@ -19,18 +18,34 @@ export class ClientRouter {
 	>();
 	public setting: PrefetchSetting = { mode: "visible" };
 	private observer: IntersectionObserver = new IntersectionObserver(
-		this.observerCallback
+		(
+			entries: IntersectionObserverEntry[],
+			observer: IntersectionObserver
+		) => this.observerCallback(entries, observer)
 	);
 	private render: Function;
 
 	constructor(render: Function, setting: PrefetchSetting) {
 		this.render = render;
 		setting && (this.setting = setting);
+		this.vitePrefetch.bind(this);
 
 		if (window?.history) {
 			window.addEventListener("popstate", (e) => this.onPop(e));
 			this.prefetchVisible();
 		}
+	}
+
+	private _prefetch:
+		| ((url: string) => Promise<void | ((url: string) => Promise<void>)>)
+		| undefined = undefined;
+	get vitePrefetch() {
+		if (this._prefetch === undefined) {
+			const prefetch = import("vike/client/router");
+			this._prefetch = (url: string) =>
+				prefetch.then((mods) => mods.prefetch(url));
+		}
+		return this._prefetch;
 	}
 
 	public getPath(url: string | null | undefined) {
@@ -41,7 +56,8 @@ export class ClientRouter {
 		entries: IntersectionObserverEntry[],
 		observer: IntersectionObserver
 	): void {
-		const clientRouter = import.meta.env.SSR ? this : window.clientRouter;
+		const clientRouter =
+			typeof window === "undefined" ? this : window.clientRouter;
 		entries.forEach(async (entry: IntersectionObserverEntry) => {
 			const path = clientRouter.getPath(
 				entry.target.getAttribute("href")
@@ -54,7 +70,7 @@ export class ClientRouter {
 
 			if (entry.isIntersecting) {
 				clientRouter.prefetched.add(path);
-				await vitePrefech(path);
+				this.vitePrefetch!(path);
 				observer.unobserve(entry.target);
 			}
 		});
@@ -68,7 +84,7 @@ export class ClientRouter {
 		}
 
 		this.prefetched.add(path);
-		await vitePrefech(path);
+		this.vitePrefetch!(path);
 		return true;
 	}
 
@@ -80,7 +96,12 @@ export class ClientRouter {
 
 		if ("IntersectionObserver" in window === false) return;
 		this.observer ||
-			(this.observer = new IntersectionObserver(this.observerCallback));
+			(this.observer = new IntersectionObserver(
+				(
+					entries: IntersectionObserverEntry[],
+					observer: IntersectionObserver
+				) => this.observerCallback(entries, observer)
+			));
 
 		Array.from(document.querySelectorAll("a"))
 			.filter((element) => {
@@ -106,7 +127,7 @@ export class ClientRouter {
 			}
 
 			this.prefetched.add(path);
-			await vitePrefech(path);
+			this.vitePrefetch!(path);
 		});
 	}
 
@@ -123,7 +144,7 @@ export class ClientRouter {
 			}
 
 			this.prefetched.add(path);
-			await vitePrefech(path);
+			this.vitePrefetch!(path);
 
 			try {
 				const response = await fetch(path);
@@ -249,7 +270,8 @@ const Link_ = ({
 	href,
 	...props
 }: PropsWithChildren & { className?: string; href: string }) => {
-	const clientRouter = import.meta.env.SSR ? null : window.clientRouter;
+	const clientRouter =
+		typeof window === "undefined" ? null : window.clientRouter;
 	const pageSetting =
 		clientRouter?.pageSettingMap.get(
 			clientRouter.getPath(window.location.href)

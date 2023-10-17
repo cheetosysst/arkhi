@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import { IslandMap } from "./island.js";
 import superjson from "superjson";
-import { Link } from "./router";
+import { Link } from "./router.js";
 
 declare global {
 	interface Window {
@@ -26,11 +26,11 @@ const kebabToCamel = (str: string) => {
 };
 
 const stringToStyle = (styleString: string): Record<string, string> => {
-	const styleArray = styleString.split(';').filter(Boolean); // Split the string by semicolon and remove empty elements
+	const styleArray = styleString.split(";").filter(Boolean); // Split the string by semicolon and remove empty elements
 	const styleObject = new Map<string, any>();
 
 	for (const style of styleArray) {
-		const [property, value] = style.split(':').map((str) => str.trim()); // Split each property-value pair
+		const [property, value] = style.split(":").map((str) => str.trim()); // Split each property-value pair
 		styleObject.set(kebabToCamel(property), value); // Use type assertion as any
 	}
 
@@ -42,11 +42,11 @@ const attributesMap = (attributes: NamedNodeMap) => {
 	for (const item of attributes) {
 		let name: string = item.name;
 		let value: any = item.value;
-		if (name === 'style') {
+		if (name === "style") {
 			value = stringToStyle(item.value);
 		}
-		if (name === 'class') {
-			name = 'className';
+		if (name === "class") {
+			name = "className";
 		}
 		map.set(name, value);
 	}
@@ -90,26 +90,34 @@ const explore = (parentNode: Node) => {
 		const childTree = explore(currentNode);
 
 		if (currentNode.nodeName === "A") {
-			siblings.push(<Link href={(currentNode as HTMLAnchorElement).href} {...attributes}>{childTree.props.children.length ? childTree : undefined}</Link>);
+			console.log(childTree);
+			siblings.push(
+				<Link
+					href={(currentNode as HTMLAnchorElement).href}
+					{...attributes}
+				>
+					{childTree.props.children ? childTree : undefined}
+				</Link>
+			);
 			currentNode = currentNode.nextSibling as Node;
 			continue;
 		}
 
-		const component = childTree.props.children.length
+		const component = childTree.props.children
 			? React.createElement(
-				currentNode.nodeName.toLowerCase(),
-				Object.fromEntries(attributes),
-				childTree
-			)
+					currentNode.nodeName.toLowerCase(),
+					Object.fromEntries(attributes),
+					childTree
+			  )
 			: React.createElement(
-				currentNode.nodeName.toLowerCase(),
-				Object.fromEntries(attributes)
-			);
+					currentNode.nodeName.toLowerCase(),
+					Object.fromEntries(attributes)
+			  );
 
 		siblings.push(component);
 		currentNode = currentNode.nextSibling as Node;
 	}
-
+	console.log(siblings);
 	return <>{...siblings}</>;
 };
 
