@@ -90,7 +90,6 @@ const explore = (parentNode: Node) => {
 		const childTree = explore(currentNode);
 
 		if (currentNode.nodeName === "A") {
-			console.log(childTree);
 			siblings.push(
 				<Link
 					href={(currentNode as HTMLAnchorElement).href}
@@ -117,7 +116,6 @@ const explore = (parentNode: Node) => {
 		siblings.push(component);
 		currentNode = currentNode.nextSibling as Node;
 	}
-	console.log(siblings);
 	return <>{...siblings}</>;
 };
 
