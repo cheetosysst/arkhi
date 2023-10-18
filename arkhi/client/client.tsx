@@ -74,6 +74,19 @@ const explore = (parentNode: Node) => {
 			const [islandID, propsID] = islandString.split(":");
 			const Component = IslandMap.get(islandID)!;
 			const props = propsMap[propsID];
+
+			if (islandID === 'Link_') {
+				const childTree = explore(currentNode);
+				siblings.push(<Link
+					href={(currentNode as HTMLAnchorElement).href}
+					{...attributes}
+				>
+					{childTree.props.children ? childTree : undefined}
+				</Link>);
+				currentNode = currentNode.nextSibling as Node;
+				continue;
+			}
+
 			// @ts-ignore
 			siblings.push(<Component {...attributes} {...props} />);
 			currentNode = currentNode.nextSibling as Node;
