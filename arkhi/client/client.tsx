@@ -67,12 +67,6 @@ const explore = (parentNode: Node) => {
 			continue;
 		}
 
-		if (currentNode.nodeName === "BR") {
-			siblings.push(<br />);
-			currentNode = currentNode.nextSibling as Node;
-			continue;
-		}
-
 		const attributes = attributesMap((currentNode as Element).attributes);
 		const islandString = attributes.get(ISLAND_ATTRIBUTE_ID);
 
@@ -80,7 +74,6 @@ const explore = (parentNode: Node) => {
 			const [islandID, propsID] = islandString.split(":");
 			const Component = IslandMap.get(islandID)!;
 			const props = propsMap[propsID];
-
 			// @ts-ignore
 			siblings.push(<Component {...attributes} {...props} />);
 			currentNode = currentNode.nextSibling as Node;
@@ -88,6 +81,18 @@ const explore = (parentNode: Node) => {
 		}
 
 		const childTree = explore(currentNode);
+
+		if (currentNode.nodeName === "BR") {
+			siblings.push(<br {...Object.fromEntries(attributes)} />);
+			currentNode = currentNode.nextSibling as Node;
+			continue;
+		}
+
+		if (currentNode.nodeName === "IMG") {
+			siblings.push(<img {...Object.fromEntries(attributes)} />);
+			currentNode = currentNode.nextSibling as Node;
+			continue;
+		}
 
 		if (currentNode.nodeName === "A") {
 			siblings.push(

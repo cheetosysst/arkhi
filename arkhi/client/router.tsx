@@ -296,6 +296,7 @@ const Link_ = ({
 			onMouseOver={isSettingHover ? handleMouseOver : undefined}
 			className={className ?? ""}
 			href={href}
+			data-link
 			{...props}
 		>
 			{children}
