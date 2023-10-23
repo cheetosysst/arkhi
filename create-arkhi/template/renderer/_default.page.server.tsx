@@ -3,12 +3,12 @@ import React from "react";
 import { PageShell } from "./PageShell";
 import { escapeInject, dangerouslySkipEscape } from "vike/server";
 import type { PageContextServer } from "./types";
-import { IslandProps } from "#/arkhi/client";
+import { IslandProps } from "arkhi/client";
 import SuperJSON from "superjson";
 
-import { PageHeads } from "#/arkhi/client/Head";
+import { Head } from "arkhi/client";
 
-import { generatePreloadTags, clearAssetSet } from "#/arkhi/client/preload";
+import { generatePreloadTags, clearAssetSet } from "arkhi/client";
 
 export { render };
 // See https://vike.dev/data-fetching
@@ -25,7 +25,7 @@ async function render(pageContext: PageContextServer) {
 	const preloadTags = generatePreloadTags();
 	const headHtml = ReactDOMServer.renderToString(
 		<>
-			{PageHeads}
+			{Head}
 			{preloadTags}
 		</>
 	);

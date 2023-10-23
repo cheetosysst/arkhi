@@ -6,6 +6,7 @@ import { PreloadProvider } from "./preload.js";
 export * from "./router.js";
 export * from "./island.js";
 export * from "./client.js";
+export { generatePreloadTags, clearAssetSet } from "./preload.js";
 
 export { Head } from "./Head.js";
 export function ArkhiProvider({ children }: PropsWithChildren) {
