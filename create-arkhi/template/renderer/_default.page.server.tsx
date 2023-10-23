@@ -9,6 +9,7 @@ import SuperJSON from "superjson";
 import { Head } from "arkhi/client";
 
 import { generatePreloadTags, clearAssetSet } from "arkhi/client";
+import { PageHeads } from "arkhi/client";
 
 export { render };
 // See https://vike.dev/data-fetching
@@ -25,7 +26,7 @@ async function render(pageContext: PageContextServer) {
 	const preloadTags = generatePreloadTags();
 	const headHtml = ReactDOMServer.renderToString(
 		<>
-			{Head}
+			{PageHeads}
 			{preloadTags}
 		</>
 	);

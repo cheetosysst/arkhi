@@ -8,7 +8,7 @@ export * from "./island.js";
 export * from "./client.js";
 export { generatePreloadTags, clearAssetSet } from "./preload.js";
 
-export { Head } from "./Head.js";
+export { Head, PageHeads } from "./Head.js";
 export function ArkhiProvider({ children }: PropsWithChildren) {
 	return (
 		<HeadProvider>
