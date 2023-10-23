@@ -75,20 +75,24 @@ const explore = (parentNode: Node) => {
 			const Component = IslandMap.get(islandID)!;
 			const props = propsMap[propsID];
 
-			if (islandID === 'Link_') {
+			if (islandID === "Link_") {
 				const childTree = explore(currentNode);
-				siblings.push(<Link
-					href={(currentNode as HTMLAnchorElement).href}
-					{...attributes}
-				>
-					{childTree.props.children ? childTree : undefined}
-				</Link>);
+				siblings.push(
+					<Link
+						href={(currentNode as HTMLAnchorElement).href}
+						{...Object.fromEntries(attributes)}
+					>
+						{childTree.props.children ? childTree : undefined}
+					</Link>
+				);
 				currentNode = currentNode.nextSibling as Node;
 				continue;
 			}
 
-			// @ts-ignore
-			siblings.push(<Component {...attributes} {...props} />);
+			siblings.push(
+				// @ts-ignore
+				<Component {...Object.fromEntries(attributes)} {...props} />
+			);
 			currentNode = currentNode.nextSibling as Node;
 			continue;
 		}
@@ -111,7 +115,7 @@ const explore = (parentNode: Node) => {
 			siblings.push(
 				<Link
 					href={(currentNode as HTMLAnchorElement).href}
-					{...attributes}
+					{...Object.fromEntries(attributes)}
 				>
 					{childTree.props.children ? childTree : undefined}
 				</Link>
