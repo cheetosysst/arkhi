@@ -37,37 +37,28 @@ const stringToStyle = (styleString: string): Record<string, string> => {
 	return Object.fromEntries(styleObject);
 };
 
+const attrs: Record<string, string> = {
+	class: "className",
+	for: "htmlFor",
+	"stroke-width": "strokeWidth",
+	"stroke-dasharray": "strokeDasharray",
+	"stroke-dashoffset": "strokeDashoffset",
+	"stroke-linecap": "strokeLinecap",
+	"stroke-linejoin": "strokeLinejoin",
+	"stop-color": "stopColor",
+	"text-anchor": "textAnchor",
+	"clip-path": "clipPath",
+	"xlink:href": "xlinkHref",
+	"xmlns:xlink": "xmlnsXlink",
+};
+
 const attributesMap = (attributes: NamedNodeMap) => {
 	const map = new Map<string, any>();
 	for (const item of attributes) {
-		let name: string = item.name;
+		const name: string = attrs[item.name] || item.name;
 		let value: any = item.value;
 		if (name === "style") {
 			value = stringToStyle(item.value);
-		} else if (name === "class") {
-			name = "className";
-		} else if (name === "for") {
-			name = "htmlFor";
-		} else if (name === "stroke-width") {
-			name = "strokeWidth";
-		} else if (name === "stroke-dasharray") {
-			name = "strokeDasharray";
-		} else if (name === "stroke-dashoffset") {
-			name = "strokeDashoffset";
-		} else if (name === "stroke-linecap") {
-			name = "strokeLinecap";
-		} else if (name === "stroke-linejoin") {
-			name = "strokeLinejoin";
-		} else if (name === "stop-color") {
-			name = "stopColor";
-		} else if (name === "text-anchor") {
-			name = "textAnchor";
-		} else if (name === "clip-path") {
-			name = "clipPath";
-		} else if (name === "xlink:href") {
-			name = "xlinkHref";
-		} else if (name === "xmlns:xlink") {
-			name = "xmlnsXlink";
 		}
 		map.set(name, value);
 	}
