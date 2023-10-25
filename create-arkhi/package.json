@@ -1,6 +1,6 @@
 {
   "name": "create-arkhi",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Create a boilerplate project for arkhi framework.",
   "main": "index.js",
   "repository": {

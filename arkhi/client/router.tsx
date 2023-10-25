@@ -223,7 +223,14 @@ export class ClientRouter {
 		});
 	}
 
-	public go(path: string): Promise<boolean> {
+	public go(path: string): Promise<boolean> | undefined {
+		if (path.length) {
+			const origin = new URL(path).origin;
+			if (window.location.origin !== origin) {
+				window.location.href = path;
+				return;
+			}
+		}
 		path = this.getPath(path);
 		return this.updatePageContext({ href: path, mode: "go" });
 	}

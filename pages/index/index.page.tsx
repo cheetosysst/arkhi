@@ -27,6 +27,7 @@ function Page() {
 			<h1>Welcome</h1>
 			<ColorChanger />
 			This page is:
+			<a href="">github</a>
 			<ul>
 				<li>Rendered to HTML.</li>
 				<li>
