@@ -46,12 +46,28 @@ const attributesMap = (attributes: NamedNodeMap) => {
 			value = stringToStyle(item.value);
 		} else if (name === "class") {
 			name = "className";
+		} else if (name === "for") {
+			name = "htmlFor";
 		} else if (name === "stroke-width") {
 			name = "strokeWidth";
+		} else if (name === "stroke-dasharray") {
+			name = "strokeDasharray";
+		} else if (name === "stroke-dashoffset") {
+			name = "strokeDashoffset";
 		} else if (name === "stroke-linecap") {
 			name = "strokeLinecap";
 		} else if (name === "stroke-linejoin") {
 			name = "strokeLinejoin";
+		} else if (name === "stop-color") {
+			name = "stopColor";
+		} else if (name === "text-anchor") {
+			name = "textAnchor";
+		} else if (name === "clip-path") {
+			name = "clipPath";
+		} else if (name === "xlink:href") {
+			name = "xlinkHref";
+		} else if (name === "xmlns:xlink") {
+			name = "xmlnsXlink";
 		}
 		map.set(name, value);
 	}
