@@ -225,7 +225,7 @@ export class ClientRouter {
 
 	public go(path: string): Promise<boolean> | undefined {
 		if (path.length) {
-			const origin = new URL(path).origin;
+			const origin = new URL(path, window.location.origin).origin;
 			if (window.location.origin !== origin) {
 				window.location.href = path;
 				return;
