@@ -44,9 +44,14 @@ const attributesMap = (attributes: NamedNodeMap) => {
 		let value: any = item.value;
 		if (name === "style") {
 			value = stringToStyle(item.value);
-		}
-		if (name === "class") {
+		} else if (name === "class") {
 			name = "className";
+		} else if (name === "stroke-width") {
+			name = "strokeWidth";
+		} else if (name === "stroke-linecap") {
+			name = "strokeLinecap";
+		} else if (name === "stroke-linejoin") {
+			name = "strokeLinejoin";
 		}
 		map.set(name, value);
 	}
