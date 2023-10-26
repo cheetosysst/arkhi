@@ -7,3 +7,4 @@ export function arkhiPlugin(): Plugin[] {
 	// @ts-ignore
 	return [arkhiCMS(), optimizeBuildSettings()];
 }
+export { injectMDXPlugins } from "./cms.js";
