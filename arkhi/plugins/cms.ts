@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { compile } from "@mdx-js/mdx";
 import matter from "gray-matter";
+import type { PluggableList } from "@mdx-js/mdx/lib/core";
 
 // 從dirPath指向的檔案夾下獲取所有具有ext擴展名的文檔，返回儲存所有文檔絕對路徑的array
 export async function getFilesInDir(
@@ -86,9 +87,9 @@ async function transformMarkdownContent(id: string, code: string) {
 	// 使用@mdx-js/mdx將Markdown content轉為JSX
 	// https://mdxjs.com/packages/mdx/#compilefile-options
 	const result = await compile(content, {
-		remarkPlugins: [],
-		rehypePlugins: [],
-		recmaPlugins: [],
+		remarkPlugins: remarkPlugins,
+		rehypePlugins: rehypePlugins,
+		recmaPlugins: recmaPlugins,
 		mdExtensions: [".md"],
 		mdxExtensions: [".mdx"],
 		format: "detect",
@@ -100,6 +101,33 @@ async function transformMarkdownContent(id: string, code: string) {
 		metadata
 	)};`;
 	return result + "\n" + exportMetadata; // 返回轉換後的JSX和導出的metadata
+}
+
+const remarkPlugins: PluggableList = [];
+const rehypePlugins: PluggableList = [];
+const recmaPlugins: PluggableList = [];
+
+export function injectMDXPlugins(
+	target: "remark" | "rehype" | "recma",
+	list: PluggableList
+) {
+	const targetList =
+		target === "remark"
+			? remarkPlugins
+			: target === "rehype"
+			? rehypePlugins
+			: target === "recma"
+			? recmaPlugins
+			: undefined;
+	if (!targetList) {
+		return Promise.reject(
+			new Error(`plugin target ${target} does not exist`)
+		);
+	}
+	const union = new Set<PluggableList[number]>(targetList);
+	list.forEach((item) => union.add(item));
+	targetList.splice(0, targetList.length);
+	targetList.push(...union);
 }
 
 export default function arkhiCMS(): Plugin {
