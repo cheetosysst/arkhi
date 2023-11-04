@@ -1,8 +1,8 @@
 import React, { createContext, useContext } from "react";
 import type { PropsWithChildren, ReactNode } from "react";
 
-const HeadContext = createContext<Array<ReactNode>>([]);
 export const PageHeads: Array<ReactNode> = [];
+const HeadContext = createContext<Array<ReactNode>>(PageHeads);
 
 /**
  * Context provider for head tags. Only runs on server-side.
