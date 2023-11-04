@@ -12,22 +12,17 @@ declare global {
 
 const ISLAND_ATTRIBUTE_ID = "_island_id";
 
-let propsMap: { [id: string]: unknown } = {};
+let propsMap: Record<string, object> = {};
 
-const populate = (parent: Element, component: JSX.Element) => {
-	requestIdleCallback(() => {
-		const root = createRoot(parent);
-		root.render(component);
-	});
-};
+const populate = (parent: Element, component: JSX.Element) =>
+	requestIdleCallback(() => createRoot(parent).render(component));
 
-const kebabToCamel = (str: string) => {
-	return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-};
+const kebabToCamel = (str: string) =>
+	str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
 const stringToStyle = (styleString: string): Record<string, string> => {
 	const styleArray = styleString.split(";").filter(Boolean); // Split the string by semicolon and remove empty elements
-	const styleObject = new Map<string, any>();
+	const styleObject = new Map<string, string>();
 
 	for (const style of styleArray) {
 		const [property, value] = style.split(":").map((str) => str.trim()); // Split each property-value pair
@@ -37,7 +32,7 @@ const stringToStyle = (styleString: string): Record<string, string> => {
 	return Object.fromEntries(styleObject);
 };
 
-const attrs: Record<string, string> = {
+const convertionTable: Record<string, string> = {
 	class: "className",
 	for: "htmlFor",
 	"stroke-width": "strokeWidth",
@@ -53,21 +48,18 @@ const attrs: Record<string, string> = {
 };
 
 const attributesMap = (attributes: NamedNodeMap) => {
-	const map = new Map<string, any>();
+	const attrs = new Map<string, string | Record<string, string>>();
 	for (const item of attributes) {
-		const name: string = attrs[item.name] || item.name;
-		let value: any = item.value;
-		if (name === "style") {
-			value = stringToStyle(item.value);
-		}
-		map.set(name, value);
+		const name: string = convertionTable[item.name] || item.name;
+		const value = name !== "style" ? item.value : stringToStyle(item.value);
+		attrs.set(name, value);
 	}
-	return map;
+	return attrs;
 };
 
 const explore = (parentNode: Node) => {
 	const siblings: JSX.Element[] = [];
-	let currentNode = parentNode.firstChild as Node;
+	let currentNode = parentNode.firstChild;
 
 	while (currentNode) {
 		if (currentNode === null || currentNode.nodeType === Node.COMMENT_NODE)
@@ -75,7 +67,7 @@ const explore = (parentNode: Node) => {
 
 		if (currentNode.nodeType === Node.TEXT_NODE) {
 			siblings.push(<>{currentNode.nodeValue}</>);
-			currentNode = currentNode.nextSibling as Node;
+			currentNode = currentNode.nextSibling;
 			continue;
 		}
 
@@ -83,7 +75,7 @@ const explore = (parentNode: Node) => {
 		const islandString = attributes.get(ISLAND_ATTRIBUTE_ID);
 
 		if (islandString) {
-			const [islandID, propsID] = islandString.split(":");
+			const [islandID, propsID] = (islandString as string).split(":");
 			const Component = IslandMap.get(islandID)!;
 			const props = propsMap[propsID];
 
@@ -97,15 +89,14 @@ const explore = (parentNode: Node) => {
 						{childTree.props.children ? childTree : undefined}
 					</Link>
 				);
-				currentNode = currentNode.nextSibling as Node;
+				currentNode = currentNode.nextSibling;
 				continue;
 			}
 
 			siblings.push(
-				// @ts-ignore
 				<Component {...Object.fromEntries(attributes)} {...props} />
 			);
-			currentNode = currentNode.nextSibling as Node;
+			currentNode = currentNode.nextSibling;
 			continue;
 		}
 
@@ -113,13 +104,13 @@ const explore = (parentNode: Node) => {
 
 		if (currentNode.nodeName === "BR") {
 			siblings.push(<br {...Object.fromEntries(attributes)} />);
-			currentNode = currentNode.nextSibling as Node;
+			currentNode = currentNode.nextSibling;
 			continue;
 		}
 
 		if (currentNode.nodeName === "IMG") {
 			siblings.push(<img {...Object.fromEntries(attributes)} />);
-			currentNode = currentNode.nextSibling as Node;
+			currentNode = currentNode.nextSibling;
 			continue;
 		}
 
@@ -132,7 +123,7 @@ const explore = (parentNode: Node) => {
 					{childTree.props.children ? childTree : undefined}
 				</Link>
 			);
-			currentNode = currentNode.nextSibling as Node;
+			currentNode = currentNode.nextSibling;
 			continue;
 		}
 
@@ -148,7 +139,7 @@ const explore = (parentNode: Node) => {
 			  );
 
 		siblings.push(component);
-		currentNode = currentNode.nextSibling as Node;
+		currentNode = currentNode.nextSibling;
 	}
 	return <>{...siblings}</>;
 };
@@ -158,25 +149,29 @@ const explore = (parentNode: Node) => {
  * @param node Current node
  */
 const walk = (node: Node | null) => {
-	if (node?.nodeType !== Node.TEXT_NODE && (node as Element).attributes) {
+	if (!node) return;
+	if (node.nodeType !== Node.TEXT_NODE && (node as Element).attributes) {
 		const attributes = (node as Element).attributes;
-		const isIsland = attributes.getNamedItem(ISLAND_ATTRIBUTE_ID)!;
+		const isIsland = attributes.getNamedItem(ISLAND_ATTRIBUTE_ID);
 
 		if (isIsland) {
-			// An island is found, no need to dig further down.
-			const islandMap = explore(node!.parentNode!);
-			populate(node?.parentElement as Element, islandMap);
+			const islandMap = explore(node.parentNode!);
+			populate(node.parentElement!, islandMap);
 			return;
 		}
 	}
 
-	const nextSibling = node!.nextSibling;
-	const firstChild = node!.firstChild;
+	const nextSibling = node.nextSibling;
+	const firstChild = node.firstChild;
 
 	if (nextSibling) walk(nextSibling);
 	if (firstChild) walk(firstChild);
 };
 
+/**
+ * Starts rendering process for islands.
+ * @param node Starting point of render
+ */
 export function renderIslands(node: Node) {
 	propsMap = superjson.parse(window.propString || "{}");
 	walk(node);
