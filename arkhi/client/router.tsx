@@ -70,7 +70,7 @@ export class ClientRouter {
 
 			if (entry.isIntersecting) {
 				clientRouter.prefetched.add(path);
-				this.vitePrefetch!(path);
+				this.vitePrefetch(path);
 				observer.unobserve(entry.target);
 			}
 		});
@@ -84,7 +84,7 @@ export class ClientRouter {
 		}
 
 		this.prefetched.add(path);
-		this.vitePrefetch!(path);
+		this.vitePrefetch(path);
 		return true;
 	}
 
@@ -104,13 +104,11 @@ export class ClientRouter {
 			));
 
 		Array.from(document.querySelectorAll("a"))
-			.filter((element) => {
-				const path = this.getPath(element.href);
-				return this.prefetched.has(path) === false;
-			})
-			.forEach((element) => {
-				this.observer.observe(element);
-			});
+			.filter(
+				(element) =>
+					this.prefetched.has(this.getPath(element.href)) === false
+			)
+			.forEach((element) => this.observer.observe(element));
 	}
 
 	private prefetchPage(): void {
@@ -127,7 +125,7 @@ export class ClientRouter {
 			}
 
 			this.prefetched.add(path);
-			this.vitePrefetch!(path);
+			this.vitePrefetch(path);
 		});
 	}
 
@@ -144,7 +142,7 @@ export class ClientRouter {
 			}
 
 			this.prefetched.add(path);
-			this.vitePrefetch!(path);
+			this.vitePrefetch(path);
 
 			try {
 				const response = await fetch(path);
@@ -245,7 +243,6 @@ export class ClientRouter {
 
 	/**
 	 * Should be called in _default.page.client render function.
-	 *
 	 */
 	public beforeRender(): void {
 		const PrefetchSettingJson =
@@ -277,33 +274,38 @@ const Link_ = ({
 	href,
 	...props
 }: PropsWithChildren & { className?: string; href: string }) => {
-	const clientRouter =
-		typeof window === "undefined" ? null : window.clientRouter;
+	if (typeof window === "undefined")
+		return (
+			<a className={className ?? ""} href={href} {...props}>
+				{children}
+			</a>
+		);
+
+	const clientRouter = window.clientRouter;
 	const pageSetting =
-		clientRouter?.pageSettingMap.get(
+		clientRouter.pageSettingMap.get(
 			clientRouter.getPath(window.location.href)
-		) || clientRouter?.setting;
-	const isSettingHover = pageSetting?.mode === "hover";
+		) || clientRouter.setting;
+	const isSettingHover = pageSetting.mode === "hover";
 
 	const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
 		const target = event.currentTarget;
-		clientRouter && clientRouter.go(target.getAttribute("href") || ""); // Adjust to get the href attribute
+		clientRouter.go(target.getAttribute("href") || "");
 	};
 
 	const handleMouseOver = (event: MouseEvent<HTMLAnchorElement>) => {
 		event.preventDefault();
 		const target = event.currentTarget;
-		clientRouter && clientRouter.prefetchHover(target);
+		clientRouter.prefetchHover(target);
 	};
 
 	return (
 		<a
-			onClick={clientRouter ? handleClick : undefined}
+			onClick={handleClick}
 			onMouseOver={isSettingHover ? handleMouseOver : undefined}
 			className={className ?? ""}
 			href={href}
-			data-link
 			{...props}
 		>
 			{children}
