@@ -21,7 +21,10 @@ export function Island<T extends object>(
 	IslandMap.set(islandID, Component);
 
 	const NewComponent: ComponentType<T & IslandProps> = (props: T) => {
-		const propsID = hash(`${islandID}${JSON.stringify(props)}`);
+		const propsID =
+			typeof window == "undefined"
+				? hash(`${islandID}${JSON.stringify(props)}`)
+				: "";
 		IslandProps.set(propsID, props);
 		return <Component {...props} _island_id={`${islandID}:${propsID}`} />;
 	};
