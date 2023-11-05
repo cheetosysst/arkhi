@@ -6,10 +6,8 @@ import type { PageContextServer } from "./types";
 import { IslandProps } from "arkhi/client";
 import SuperJSON from "superjson";
 
-import { Head } from "arkhi/client";
-
-import { generatePreloadTags, clearAssetSet } from "arkhi/client";
 import { PageHeads } from "arkhi/client";
+import { generatePreloadTags, clearAssetSet } from "arkhi/client";
 
 export { render };
 // See https://vike.dev/data-fetching
@@ -36,26 +34,26 @@ async function render(pageContext: PageContextServer) {
 	IslandProps.clear();
 	clearAssetSet();
 	const documentHtml = escapeInject`<!DOCTYPE html>
-    <html lang="en">
-		<head>
-			<meta charset="UTF-8" />
-			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-			${dangerouslySkipEscape(headHtml)}
-		</head>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		${dangerouslySkipEscape(headHtml)}
+	</head>
 
-      <body>
-        <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
-        <div id="prefetch-setting" data-setting = ${JSON.stringify(
-			PrefetchSetting || ""
-		)}></div>
-        <script>
-					var prefetchSetting = '${dangerouslySkipEscape(
-						JSON.stringify(PrefetchSetting || "")
-					)}'
-          var propString = '${dangerouslySkipEscape(propString || "")}'
-        </script>
-      </body>
-    </html>`;
+	<body>
+	<div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
+	<div id="prefetch-setting" data-setting = ${JSON.stringify(
+		PrefetchSetting || ""
+	)}></div>
+	<script>
+		var prefetchSetting = '${dangerouslySkipEscape(
+			JSON.stringify(PrefetchSetting || "")
+		)}'
+		var propString = '${dangerouslySkipEscape(propString || "")}'
+	</script>
+	</body>
+</html>`;
 
 	return {
 		documentHtml,
