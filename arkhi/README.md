@@ -14,18 +14,7 @@ cd my-app
 npm i # pnpm, yarn, bun 
 ```
 
-## 支援功能
-
-- 🔷 **TypeScript 優先**  
-    Arkhi 重視型別安全在開發時帶來的優勢以及更高的開發者體驗（UX），Arkhi 除了使用 TypeScript 開發，也預設提供 tRPC 以方便確保前後端的型別安全。
-- ✏️ **Markdown 支援**  
-    支援並整合 Markdown 和 MDX 格式至框架中，方便撰寫具備互動性的文檔網站，或是其他靜態內容為主的應用。
-- ⚡ **Vite**  
-    使用 Vite 以獲得更佳的冷啟動速度、編譯時間、以及整體的開發體驗。
-
 ## Getting Started
-
-更詳細的介紹請見 [Getting Started](./docs/start/getting_started.md)。
 
 ### 建立島嶼
 
